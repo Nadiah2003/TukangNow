@@ -1,6 +1,6 @@
 package DAO;
 
-import Config.DB_TukangNow;
+import Config.ConnectionManager;
 import Model.ReceiptData;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,7 +10,7 @@ import java.sql.SQLException;
 public class ReceiptDAO {
 
     private Connection getConnection() throws SQLException {
-        Connection connection = DB_TukangNow.getConnection();
+        Connection connection = ConnectionManager.getConnection();
 
         if (connection == null) {
             throw new SQLException("Database connection is null. Please check DB_TukangNow configuration.");
@@ -34,7 +34,7 @@ public class ReceiptDAO {
                 "CASE " +
                 "WHEN b.status = 'Emergency' THEN 'Emergency Service' " +
                 "WHEN b.subservicebooked IS NOT NULL AND TRIM(b.subservicebooked) <> '' THEN b.subservicebooked " +
-                "WHEN s.servicename IS NOT NULL THEN s.servicename " +
+                "WHEN s.servicename IS NOT NULL AND TRIM(s.servicename) <> '' THEN s.servicename " +
                 "ELSE 'General Service' END AS service_display, " +
                 "COALESCE(v.name, 'Searching Vendor...') AS vendor_name, " +
                 "b.problem, " +
@@ -42,7 +42,7 @@ public class ReceiptDAO {
                 "CASE WHEN ? = 'second_payment' THEN 0.00 ELSE IFNULL(b.deposit, 0.00) END AS deposit, " +
                 "IFNULL(b.travelfee, 0.00) AS travelfee, " +
                 "CASE WHEN ? = 'second_payment' THEN IFNULL(p.final_amount, 0.00) ELSE IFNULL(p.final_amount, IFNULL(b.totalamount, 0.00)) END AS totalamount, " +
-                "IFNULL(p.payment_paid, 0.00) AS paymentpaid, " +
+                "CASE WHEN IFNULL(p.payment_paid, 0.00) > 0 THEN IFNULL(p.payment_paid, 0.00) ELSE IFNULL(p.final_amount, 0.00) END AS paymentpaid, " +
                 "IFNULL(p.payment_method, '') AS paymentmethod, " +
                 "IFNULL(COALESCE(p.paid_at, p.failed_at, p.cancelled_at, p.refunded_at, p.created_at), '') AS paymentdate, " +
                 "IFNULL(COALESCE(NULLIF(p.payment_reference, ''), NULLIF(p.gateway_bill_code, ''), NULLIF(p.transaction_id, ''), NULLIF(p.order_id, ''), ''), '') AS payment_reference, " +
@@ -55,14 +55,18 @@ public class ReceiptDAO {
                 "WHERE p1.booking_id = b.id " +
                 "AND p1.customer_id = b.customer_id " +
                 "AND LOWER(TRIM(p1.payment_type)) = ? " +
-                "AND (? = '' OR p1.payment_reference = ? OR p1.order_id = ? OR p1.transaction_id = ? OR p1.gateway_bill_code = ? OR b.id = ?) " +
+                "AND (" +
+                "? = '' " +
+                "OR p1.payment_reference = ? " +
+                "OR p1.order_id = ? " +
+                "OR p1.transaction_id = ? " +
+                "OR p1.gateway_bill_code = ? " +
+                "OR b.id = ?" +
+                ") " +
                 "ORDER BY CASE " +
                 "WHEN LOWER(TRIM(p1.payment_status)) = 'paid' THEN 1 " +
                 "WHEN LOWER(TRIM(p1.payment_status)) = 'pending' THEN 2 " +
                 "ELSE 3 END, p1.id DESC LIMIT 1" +
-                ") " +
-                "WHERE b.customer_id = ? " +
-                "AND (b.id = ?ELSE 3 END, p1.id DESC LIMIT 1" +
                 ") " +
                 "WHERE b.customer_id = ? " +
                 "AND (b.id = ? OR p.id IS NOT NULL) " +
@@ -131,7 +135,8 @@ public class ReceiptDAO {
             return 0;
         }
 
-        try {            return Integer.parseInt(clean);
+        try {
+            return Integer.parseInt(clean);
         } catch (NumberFormatException e) {
             return 0;
         }

@@ -1,6 +1,6 @@
 package DAO;
 
-import Config.DB_TukangNow;
+import Config.ConnectionManager;
 import Model.VendorServiceDetail;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,7 +10,7 @@ import java.sql.SQLException;
 public class GetVendorDetailDAO {
 
     protected Connection getConnection() throws SQLException {
-        Connection connection = DB_TukangNow.getConnection();
+        Connection connection = ConnectionManager.getConnection();
 
         if (connection == null) {
             throw new SQLException("Database connection is null. Please check DB_TukangNow configuration.");

@@ -1,6 +1,6 @@
 package DAO;
 
-import Config.DB_TukangNow;
+import Config.ConnectionManager;
 import Model.BookingPageData;
 import Model.EstimateItem;
 import java.sql.Connection;
@@ -14,7 +14,7 @@ import java.util.List;
 public class BookingDAO {
 
     protected Connection getConnection() throws SQLException {
-        Connection connection = DB_TukangNow.getConnection();
+        Connection connection = ConnectionManager.getConnection();
 
         if (connection == null) {
             throw new SQLException("Database connection is null. Please check DB_TukangNow configuration.");
@@ -43,6 +43,7 @@ public class BookingDAO {
                 "FROM vendor v " +
                 "JOIN service s ON v.id = s.vendor_id " +
                 "WHERE v.id = ? " +
+                "ORDER BY s.id ASC " +
                 "LIMIT 1";
 
         String customerSql = "SELECT name, email, nophone, address, postcode, city, state, latitude, longitude FROM customer WHERE id = ? LIMIT 1";
@@ -73,6 +74,7 @@ public class BookingDAO {
 
                         data = new BookingPageData();
 
+                        int serviceId = vendorRs.getInt("service_id");
                         double startPrice = vendorRs.getDouble("startprice");
                         double distance = vendorRs.getDouble("distance_km");
 
@@ -92,7 +94,7 @@ public class BookingDAO {
                         data.setVendorId(vendorId);
                         data.setVendorName(vendorRs.getString("name"));
                         data.setProfilePic(emptyToDefault(vendorRs.getString("profile_path")));
-                        data.setServiceId(vendorRs.getInt("service_id"));
+                        data.setServiceId(serviceId);
                         data.setServiceName(vendorRs.getString("servicename"));
                         data.setSubServices(vendorRs.getString("subservice"));
                         data.setAvailTime(vendorRs.getString("avail_time"));
@@ -106,13 +108,17 @@ public class BookingDAO {
                         data.setTotalDeposit(totalDeposit);
                         data.setAverageRating(ratingData[0]);
                         data.setRatingCount((int) ratingData[1]);
-                        data.setBookedTimes(getBookedTimes(connection, selectedDate, vendorRs.getInt("service_id")));
+                        data.setBookedTimes(getBookedTimes(connection, selectedDate, serviceId));
                     }
                 }
             }
         }
 
         return data;
+    }
+
+    public int resolveServiceId(int vendorId, int selectedServiceId, String selectedService) throws SQLException {
+        return getServiceId(vendorId, selectedServiceId, selectedService);
     }
 
     public List<EstimateItem> getEstimateItems(String selectedService, int vendorId) throws SQLException {
@@ -215,7 +221,7 @@ public class BookingDAO {
     }
 
     private String getVendorServiceCategory(Connection connection, int vendorId) throws SQLException {
-        String sql = "SELECT servicename FROM service WHERE vendor_id = ? LIMIT 1";
+        String sql = "SELECT servicename FROM service WHERE vendor_id = ? ORDER BY id ASC LIMIT 1";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setInt(1, vendorId);
@@ -288,8 +294,8 @@ public class BookingDAO {
         }
     }
 
-    public int createBooking(int customerId, int vendorId, String subserviceBooked, String date, String time, double deposit, String problem, double travelFee, double distanceKm, String paymentStatus, String paymentReference, String evidencePath) throws SQLException {
-        int serviceId = getServiceId(vendorId);
+    public int createBooking(int customerId, int vendorId, int selectedServiceId, String subserviceBooked, String date, String time, double deposit, String problem, double travelFee, double distanceKm, String paymentStatus, String paymentReference, String evidencePath) throws SQLException {
+        int serviceId = getServiceId(vendorId, selectedServiceId, subserviceBooked);
         String bookingDateTime = date + " " + time;
         double totalAmount = deposit;
         double materialCost = 0.00;
@@ -335,12 +341,95 @@ public class BookingDAO {
         throw new SQLException("Failed to get booking ID.");
     }
 
-    private int getServiceId(int vendorId) throws SQLException {
-        String sql = "SELECT id FROM service WHERE vendor_id = ? LIMIT 1";
+    public int createBooking(int customerId, int vendorId, String subserviceBooked, String date, String time, double deposit, String problem, double travelFee, double distanceKm, String paymentStatus, String paymentReference, String evidencePath) throws SQLException {
+        return createBooking(customerId, vendorId, 0, subserviceBooked, date, time, deposit, problem, travelFee, distanceKm, paymentStatus, paymentReference, evidencePath);
+    }
 
-        try (Connection connection = getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+    private int getServiceId(int vendorId, int selectedServiceId, String selectedService) throws SQLException {
+        if (vendorId <= 0) {
+            throw new SQLException("Invalid vendor ID.");
+        }
 
+        String cleanSelectedService = safe(selectedService);
+
+        try (Connection connection = getConnection()) {
+            if (selectedServiceId > 0 && isServiceBelongsToVendor(connection, selectedServiceId, vendorId)) {
+                return selectedServiceId;
+            }
+
+            int matchedServiceId = findServiceIdByVendorAndService(connection, vendorId, cleanSelectedService);
+
+            if (matchedServiceId > 0) {
+                return matchedServiceId;
+            }
+
+            int fallbackServiceId = findFirstServiceIdByVendor(connection, vendorId);
+
+            if (fallbackServiceId > 0) {
+                return fallbackServiceId;
+            }
+        }
+
+        throw new SQLException("Service not found for selected vendor.");
+    }
+
+    private boolean isServiceBelongsToVendor(Connection connection, int serviceId, int vendorId) throws SQLException {
+        String sql = "SELECT id FROM service WHERE id = ? AND vendor_id = ? LIMIT 1";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, serviceId);
+            preparedStatement.setInt(2, vendorId);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                return resultSet.next();
+            }
+        }
+    }
+
+    private int findServiceIdByVendorAndService(Connection connection, int vendorId, String selectedService) throws SQLException {
+        String cleanSelectedService = safe(selectedService);
+
+        if (cleanSelectedService.isEmpty()) {
+            return 0;
+        }
+
+        String sql = "SELECT id FROM service " +
+                "WHERE vendor_id = ? " +
+                "AND (" +
+                "LOWER(TRIM(servicename)) = LOWER(TRIM(?)) " +
+                "OR LOWER(TRIM(subservice)) = LOWER(TRIM(?)) " +
+                "OR LOWER(subservice) LIKE CONCAT('%', LOWER(TRIM(?)), '%')" +
+                ") " +
+                "ORDER BY CASE " +
+                "WHEN LOWER(TRIM(servicename)) = LOWER(TRIM(?)) THEN 1 " +
+                "WHEN LOWER(TRIM(subservice)) = LOWER(TRIM(?)) THEN 2 " +
+                "WHEN LOWER(subservice) LIKE CONCAT('%', LOWER(TRIM(?)), '%') THEN 3 " +
+                "ELSE 4 END, id ASC " +
+                "LIMIT 1";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, vendorId);
+            preparedStatement.setString(2, cleanSelectedService);
+            preparedStatement.setString(3, cleanSelectedService);
+            preparedStatement.setString(4, cleanSelectedService);
+            preparedStatement.setString(5, cleanSelectedService);
+            preparedStatement.setString(6, cleanSelectedService);
+            preparedStatement.setString(7, cleanSelectedService);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt("id");
+                }
+            }
+        }
+
+        return 0;
+    }
+
+    private int findFirstServiceIdByVendor(Connection connection, int vendorId) throws SQLException {
+        String sql = "SELECT id FROM service WHERE vendor_id = ? ORDER BY id ASC LIMIT 1";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setInt(1, vendorId);
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -350,7 +439,7 @@ public class BookingDAO {
             }
         }
 
-        throw new SQLException("Service not found.");
+        return 0;
     }
 
     private String emptyToDefault(String value) {

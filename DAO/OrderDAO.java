@@ -1,6 +1,6 @@
 package DAO;
 
-import Config.DB_TukangNow;
+import Config.ConnectionManager;
 import Model.Order;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,7 +11,7 @@ import java.util.List;
 public class OrderDAO {
 
     private Connection getConnection() throws Exception {
-        Connection connection = DB_TukangNow.getConnection();
+        Connection connection = ConnectionManager.getConnection();
 
         if (connection == null) {
             throw new Exception("Database connection is null. Please check DB_TukangNow configuration.");
@@ -63,7 +63,7 @@ public class OrderDAO {
 
         sql.append(
                 "ORDER BY " +
-                "FIELD(b.status, 'Emergency', 'Pending', 'Accepted', 'On the way', 'Arrived', 'Started', 'Second Payment', 'Completed', 'Rated', 'Rejected', 'Payment Failed', 'Cancelled'), " +
+                "FIELD(b.status, 'Emergency', 'Pending', 'Accepted', 'On the way', 'Arrived', 'Started', 'Second Payment', 'Completed', 'Rated', 'Report', 'Rejected', 'Reject', 'Payment Failed', 'Cancelled'), " +
                 "b.bookingdate DESC, b.id DESC"
         );
 
@@ -109,7 +109,7 @@ public class OrderDAO {
                 "WHERE customer_id = ? " +
                 "AND status IS NOT NULL " +
                 "AND TRIM(status) <> '' " +
-                "ORDER BY FIELD(status, 'Emergency', 'Pending', 'Accepted', 'On the way', 'Arrived', 'Started', 'Second Payment', 'Completed', 'Rated', 'Rejected', 'Payment Failed', 'Cancelled'), status";
+                "ORDER BY FIELD(status, 'Emergency', 'Pending', 'Accepted', 'On the way', 'Arrived', 'Started', 'Second Payment', 'Completed', 'Rated', 'Report', 'Rejected', 'Reject', 'Payment Failed', 'Cancelled'), status";
 
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {

@@ -1,6 +1,6 @@
 package DAO;
 
-import Config.DB_TukangNow;
+import Config.ConnectionManager;
 import Model.CustomerVoucherItem;
 import Model.PointHistoryItem;
 import Model.RedeemRewardResult;
@@ -17,7 +17,7 @@ import java.util.List;
 public class RewardsDAO {
 
     private Connection getConnection() throws SQLException {
-        Connection connection = DB_TukangNow.getConnection();
+        Connection connection = ConnectionManager.getConnection();
 
         if (connection == null) {
             throw new SQLException("Database connection is null. Please check DB_TukangNow configuration.");

@@ -1,6 +1,6 @@
 package DAO;
 
-import Config.DB_TukangNow;
+import Config.ConnectionManager;
 import Model.TrackingMaterialItem;
 import Model.TrackingVendorData;
 import java.sql.Connection;
@@ -19,7 +19,7 @@ import java.util.Map;
 public class TrackingVendorDAO {
 
     private Connection getConnection() throws SQLException {
-        Connection connection = DB_TukangNow.getConnection();
+        Connection connection = ConnectionManager.getConnection();
 
         if (connection == null) {
             throw new SQLException("Database connection is null. Please check DB_TukangNow configuration.");

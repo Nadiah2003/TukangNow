@@ -1,6 +1,6 @@
 package DAO;
 
-import Config.DB_TukangNow;
+import Config.ConnectionManager;
 import Model.ServiceModel;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,7 +12,7 @@ public class ServiceDAO {
         ServiceModel service = null;
         String sql = "SELECT servicename, subservice FROM service WHERE vendor_id = ?";
         
-        try (Connection conn = DB_TukangNow.getConnection();
+        try (Connection conn = ConnectionManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
             stmt.setInt(1, vendorId);
@@ -34,7 +34,7 @@ public class ServiceDAO {
 
     public int updateSubServices(int vendorId, String subServices) throws Exception {
         String sql = "UPDATE service SET subservice = ? WHERE vendor_id = ?";
-        try (Connection conn = DB_TukangNow.getConnection();
+        try (Connection conn = ConnectionManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
             stmt.setString(1, subServices);

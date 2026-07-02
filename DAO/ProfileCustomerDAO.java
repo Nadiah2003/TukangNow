@@ -1,6 +1,6 @@
 package DAO;
 
-import Config.DB_TukangNow;
+import Config.ConnectionManager;
 import Model.ProfileCustomerData;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,7 +10,7 @@ import java.sql.SQLException;
 public class ProfileCustomerDAO {
 
     protected Connection getConnection() throws SQLException {
-        Connection connection = DB_TukangNow.getConnection();
+        Connection connection = ConnectionManager.getConnection();
 
         if (connection == null) {
             throw new SQLException("Database connection is null. Please check DB_TukangNow configuration.");
@@ -31,6 +31,7 @@ public class ProfileCustomerDAO {
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
                     ProfileCustomerData data = new ProfileCustomerData();
+
                     data.setStatus("success");
                     data.setName(resultSet.getString("name"));
                     data.setEmail(resultSet.getString("email"));
@@ -41,6 +42,7 @@ public class ProfileCustomerDAO {
                     data.setState(normalizeState(resultSet.getString("state")));
                     data.setCountry(resultSet.getString("country"));
                     data.setProfile_path(safe(resultSet.getString("profile_path")));
+
                     return data;
                 }
             }
@@ -93,7 +95,12 @@ public class ProfileCustomerDAO {
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
                     String currentPassword = resultSet.getString("password");
-                    return safe(currentPassword).equals(safe(oldPassword));
+
+                    if (oldPassword == null || currentPassword == null) {
+                        return false;
+                    }
+
+                    return oldPassword.equals(currentPassword);
                 }
             }
         }

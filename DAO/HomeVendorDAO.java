@@ -1,6 +1,6 @@
 package DAO;
 
-import Config.DB_TukangNow;
+import Config.ConnectionManager;
 import Model.HomeVendorData;
 import Model.HomeVendorInfo;
 import Model.VendorJob;
@@ -10,11 +10,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class HomeVendorDAO {
 
     protected Connection getConnection() throws SQLException {
-        Connection connection = DB_TukangNow.getConnection();
+        Connection connection = ConnectionManager.getConnection();
 
         if (connection == null) {
             throw new SQLException("Database connection is null. Please check DB_TukangNow configuration.");
@@ -31,9 +33,183 @@ public class HomeVendorDAO {
         data.setUrgentJobs(getUrgentJobs(vendorId));
         data.setPendingJobs(getPendingJobs(vendorId));
         data.setActiveJobs(getActiveJobs(vendorId));
-        data.setUnreadNotificationsCount(0);
+        data.setUnreadNotificationsCount(getUnreadNotificationCount(vendorId));
 
         return data;
+    }
+
+    public int getUnreadNotificationCount(int vendorId) throws SQLException {
+        return getEmergencyNotificationCount(vendorId)
+                + getPendingBookingNotificationCount(vendorId)
+                + getWalletTransactionNotificationCount(vendorId)
+                + getCustomerChatNotificationCount(vendorId)
+                + getReportStatusNotificationCount(vendorId);
+    }
+
+    public ArrayList<Map<String, Object>> getVendorNotifications(int vendorId) throws SQLException {
+        ArrayList<Map<String, Object>> notifications = new ArrayList<>();
+
+        int emergencyCount = getEmergencyNotificationCount(vendorId);
+        int pendingBookingCount = getPendingBookingNotificationCount(vendorId);
+        int walletCount = getWalletTransactionNotificationCount(vendorId);
+        int chatCount = getCustomerChatNotificationCount(vendorId);
+        int reportStatusCount = getReportStatusNotificationCount(vendorId);
+
+        notifications.add(buildNotification(
+                "emergency_booking",
+                "🚨",
+                "Emergency Booking",
+                emergencyCount + " emergency request(s) need your response. Phone vibration will continue until accepted/rejected or another vendor accepts it.",
+                emergencyCount,
+                "homevendor.html"
+        ));
+
+        notifications.add(buildNotification(
+                "new_booking",
+                "📌",
+                "New Booking",
+                pendingBookingCount + " normal booking request(s) waiting for your response.",
+                pendingBookingCount,
+                "homevendor.html"
+        ));
+
+        notifications.add(buildNotification(
+                "wallet",
+                "💳",
+                "E-Wallet Activity",
+                walletCount + " wallet transaction(s) found recently including payment, refund or withdrawal.",
+                walletCount,
+                "walletvendor.html"
+        ));
+
+        notifications.add(buildNotification(
+                "customer_chat",
+                "💬",
+                "Customer Chat",
+                chatCount + " recent customer chat message(s) related to your bookings.",
+                chatCount,
+                "homevendor.html"
+        ));
+
+        notifications.add(buildNotification(
+                "report_status",
+                "⚠️",
+                "Report Status",
+                reportStatusCount + " booking report(s) are under admin review or recently updated.",
+                reportStatusCount,
+                "homevendor.html"
+        ));
+
+        return notifications;
+    }
+
+    private Map<String, Object> buildNotification(String type, String icon, String title, String message, int count, String link) {
+        Map<String, Object> notification = new LinkedHashMap<>();
+
+        notification.put("type", type);
+        notification.put("icon", icon);
+        notification.put("title", title);
+        notification.put("message", message);
+        notification.put("count", count);
+        notification.put("link", link);
+
+        return notification;
+    }
+
+    private int getEmergencyNotificationCount(int vendorId) throws SQLException {
+        String sql = "SELECT COUNT(DISTINCT b.id) AS total_count "
+                + "FROM emergency_booking_services ebs "
+                + "JOIN booking b ON ebs.booking_id = b.id "
+                + "JOIN service s ON ebs.service_id = s.id "
+                + "WHERE s.vendor_id = ? "
+                + "AND LOWER(TRIM(b.status)) = 'emergency' "
+                + "AND LOWER(TRIM(ebs.notification_status)) = 'pending'";
+
+        return getCountByVendor(sql, vendorId);
+    }
+
+    private int getPendingBookingNotificationCount(int vendorId) throws SQLException {
+        String sql = "SELECT COUNT(b.id) AS total_count "
+                + "FROM booking b "
+                + "JOIN service s ON b.service_id = s.id "
+                + "WHERE s.vendor_id = ? "
+                + "AND LOWER(TRIM(b.status)) = 'pending' "
+                + "AND LOWER(TRIM(IFNULL(b.subservicebooked, ''))) <> 'emergency'";
+
+        return getCountByVendor(sql, vendorId);
+    }
+
+    private int getWalletTransactionNotificationCount(int vendorId) throws SQLException {
+        String sql = "SELECT COUNT(id) AS total_count "
+                + "FROM vendor_wallet_transaction "
+                + "WHERE vendor_id = ? "
+                + "AND created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)";
+
+        return getCountByVendor(sql, vendorId);
+    }
+
+    private int getCustomerChatNotificationCount(int vendorId) throws SQLException {
+        String sql = "SELECT COUNT(cm.id) AS total_count "
+                + "FROM chat_messages cm "
+                + "JOIN booking b ON cm.booking_id = b.id "
+                + "JOIN service s ON b.service_id = s.id "
+                + "WHERE s.vendor_id = ? "
+                + "AND LOWER(TRIM(cm.sender_type)) = 'customer' "
+                + "AND COALESCE(cm.is_deleted, 0) = 0 "
+                + "AND cm.time_sent >= DATE_SUB(NOW(), INTERVAL 7 DAY)";
+
+        return getCountByVendor(sql, vendorId);
+    }
+
+    private int getReportStatusNotificationCount(int vendorId) throws SQLException {
+        String sql = "SELECT COUNT(DISTINCT b.id) AS total_count "
+                + "FROM booking b "
+                + "JOIN service s ON b.service_id = s.id "
+                + "LEFT JOIN reports r ON r.booking_id = b.id "
+                + "WHERE s.vendor_id = ? "
+                + "AND ( "
+                + "LOWER(TRIM(b.status)) = 'report' "
+                + "OR (LOWER(TRIM(r.reporter_type)) = 'vendor' AND r.reporter_id = ?) "
+                + "OR (LOWER(TRIM(r.reported_type)) = 'vendor' AND r.reported_id = ?) "
+                + ") "
+                + "AND ( "
+                + "LOWER(TRIM(IFNULL(r.status, ''))) IN ('submitted', 'investigating') "
+                + "OR LOWER(TRIM(b.status)) = 'report' "
+                + "OR (r.action_date IS NOT NULL AND r.action_date >= DATE_SUB(NOW(), INTERVAL 7 DAY)) "
+                + "OR (r.created_at IS NOT NULL AND r.created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)) "
+                + ")";
+
+        try (Connection connection = getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+            preparedStatement.setInt(1, vendorId);
+            preparedStatement.setInt(2, vendorId);
+            preparedStatement.setInt(3, vendorId);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt("total_count");
+                }
+            }
+        }
+
+        return 0;
+    }
+
+    private int getCountByVendor(String sql, int vendorId) throws SQLException {
+        try (Connection connection = getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+            preparedStatement.setInt(1, vendorId);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt("total_count");
+                }
+            }
+        }
+
+        return 0;
     }
 
     private HomeVendorInfo getVendorInfo(int vendorId) throws SQLException {
@@ -51,9 +227,9 @@ public class HomeVendorDAO {
 
         boolean vendorFound = false;
 
-        String sqlVendor = "SELECT name, status, expireddate, profile_path, is_first_login " +
-                "FROM vendor " +
-                "WHERE id = ?";
+        String sqlVendor = "SELECT name, status, expireddate, profile_path, is_first_login "
+                + "FROM vendor "
+                + "WHERE id = ?";
 
         try (Connection connection = getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sqlVendor)) {
@@ -110,18 +286,18 @@ public class HomeVendorDAO {
     }
 
     private boolean isServiceSetupComplete(int vendorId) throws SQLException {
-        String sql = "SELECT COUNT(*) AS total_count, " +
-                "SUM(CASE WHEN subservice IS NOT NULL " +
-                "AND TRIM(CAST(subservice AS CHAR)) <> '' " +
-                "AND startprice IS NOT NULL " +
-                "AND CAST(NULLIF(TRIM(CAST(startprice AS CHAR)), '') AS DECIMAL(10,2)) > 0 " +
-                "AND avail_date IS NOT NULL " +
-                "AND TRIM(CAST(avail_date AS CHAR)) <> '' " +
-                "AND avail_time IS NOT NULL " +
-                "AND TRIM(CAST(avail_time AS CHAR)) <> '' " +
-                "THEN 1 ELSE 0 END) AS complete_count " +
-                "FROM service " +
-                "WHERE vendor_id = ?";
+        String sql = "SELECT COUNT(*) AS total_count, "
+                + "SUM(CASE WHEN subservice IS NOT NULL "
+                + "AND TRIM(CAST(subservice AS CHAR)) <> '' "
+                + "AND startprice IS NOT NULL "
+                + "AND CAST(NULLIF(TRIM(CAST(startprice AS CHAR)), '') AS DECIMAL(10,2)) > 0 "
+                + "AND avail_date IS NOT NULL "
+                + "AND TRIM(CAST(avail_date AS CHAR)) <> '' "
+                + "AND avail_time IS NOT NULL "
+                + "AND TRIM(CAST(avail_time AS CHAR)) <> '' "
+                + "THEN 1 ELSE 0 END) AS complete_count "
+                + "FROM service "
+                + "WHERE vendor_id = ?";
 
         try (Connection connection = getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
@@ -153,11 +329,11 @@ public class HomeVendorDAO {
     }
 
     private int getTotalFinish(int vendorId) throws SQLException {
-        String sql = "SELECT COUNT(b.id) AS total_finish " +
-                "FROM booking b " +
-                "JOIN service s ON b.service_id = s.id " +
-                "WHERE s.vendor_id = ? " +
-                "AND LOWER(TRIM(b.status)) IN ('completed', 'rated')";
+        String sql = "SELECT COUNT(b.id) AS total_finish "
+                + "FROM booking b "
+                + "JOIN service s ON b.service_id = s.id "
+                + "WHERE s.vendor_id = ? "
+                + "AND LOWER(TRIM(b.status)) IN ('completed', 'rated')";
 
         try (Connection connection = getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
@@ -175,18 +351,51 @@ public class HomeVendorDAO {
     }
 
     private double getMonthlyIncome(int vendorId) throws SQLException {
-        String sql = "SELECT COALESCE(SUM(COALESCE(b.totalamount, 0.00) + COALESCE(material.material_total, 0.00)), 0.00) AS monthly_income " +
-                "FROM booking b " +
-                "JOIN service s ON b.service_id = s.id " +
-                "LEFT JOIN ( " +
-                "SELECT booking_id, SUM(COALESCE(quantity, 0) * COALESCE(price, 0.00)) AS material_total " +
-                "FROM booking_material_items " +
-                "GROUP BY booking_id " +
-                ") material ON material.booking_id = b.id " +
-                "WHERE s.vendor_id = ? " +
-                "AND LOWER(TRIM(b.status)) IN ('completed', 'rated') " +
-                "AND YEAR(b.bookingdate) = YEAR(CURDATE()) " +
-                "AND MONTH(b.bookingdate) = MONTH(CURDATE())";
+        double walletIncome = getMonthlyIncomeFromWalletTransaction(vendorId);
+
+        if (walletIncome > 0) {
+            return walletIncome;
+        }
+
+        return getMonthlyIncomeFromCompletedBooking(vendorId);
+    }
+
+    private double getMonthlyIncomeFromWalletTransaction(int vendorId) throws SQLException {
+        String sql = "SELECT COALESCE(SUM(ABS(amount)), 0.00) AS monthly_income "
+                + "FROM vendor_wallet_transaction "
+                + "WHERE vendor_id = ? "
+                + "AND YEAR(created_at) = YEAR(CURDATE()) "
+                + "AND MONTH(created_at) = MONTH(CURDATE()) "
+                + "AND LOWER(TRIM(type)) NOT IN ('withdraw', 'withdrawal', 'cashout', 'debit')";
+
+        try (Connection connection = getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+            preparedStatement.setInt(1, vendorId);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getDouble("monthly_income");
+                }
+            }
+        }
+
+        return 0.00;
+    }
+
+    private double getMonthlyIncomeFromCompletedBooking(int vendorId) throws SQLException {
+        String sql = "SELECT COALESCE(SUM(COALESCE(b.totalamount, 0.00) + COALESCE(material.material_total, 0.00)), 0.00) AS monthly_income "
+                + "FROM booking b "
+                + "JOIN service s ON b.service_id = s.id "
+                + "LEFT JOIN ( "
+                + "SELECT booking_id, SUM(COALESCE(quantity, 0) * COALESCE(price, 0.00)) AS material_total "
+                + "FROM booking_material_items "
+                + "GROUP BY booking_id "
+                + ") material ON material.booking_id = b.id "
+                + "WHERE s.vendor_id = ? "
+                + "AND LOWER(TRIM(b.status)) IN ('completed', 'rated') "
+                + "AND YEAR(b.bookingdate) = YEAR(CURDATE()) "
+                + "AND MONTH(b.bookingdate) = MONTH(CURDATE())";
 
         try (Connection connection = getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
@@ -204,11 +413,11 @@ public class HomeVendorDAO {
     }
 
     private double getAverageRating(int vendorId) throws SQLException {
-        String sql = "SELECT AVG(r.rating_val) AS avg_rating " +
-                "FROM rating r " +
-                "JOIN booking b ON r.booking_id = b.id " +
-                "JOIN service s ON b.service_id = s.id " +
-                "WHERE s.vendor_id = ?";
+        String sql = "SELECT AVG(r.rating_val) AS avg_rating "
+                + "FROM rating r "
+                + "JOIN booking b ON r.booking_id = b.id "
+                + "JOIN service s ON b.service_id = s.id "
+                + "WHERE s.vendor_id = ?";
 
         try (Connection connection = getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
@@ -228,15 +437,15 @@ public class HomeVendorDAO {
     private ArrayList<VendorJob> getUrgentJobs(int vendorId) throws SQLException {
         ArrayList<VendorJob> urgentJobs = new ArrayList<>();
 
-        String sql = "SELECT DISTINCT b.id AS bookingId, s.servicename, b.subservicebooked, b.problem, b.deposit, c.name AS custName, b.bookingdate, b.distancekm, b.status " +
-                "FROM emergency_booking_services ebs " +
-                "JOIN booking b ON ebs.booking_id = b.id " +
-                "JOIN service s ON ebs.service_id = s.id " +
-                "JOIN customer c ON b.customer_id = c.id " +
-                "WHERE s.vendor_id = ? " +
-                "AND LOWER(TRIM(b.status)) = 'emergency' " +
-                "AND LOWER(TRIM(ebs.notification_status)) = 'pending' " +
-                "ORDER BY b.bookingdate DESC";
+        String sql = "SELECT DISTINCT b.id AS bookingId, s.servicename, b.subservicebooked, b.problem, b.deposit, c.name AS custName, b.bookingdate, b.distancekm, b.status "
+                + "FROM emergency_booking_services ebs "
+                + "JOIN booking b ON ebs.booking_id = b.id "
+                + "JOIN service s ON ebs.service_id = s.id "
+                + "JOIN customer c ON b.customer_id = c.id "
+                + "WHERE s.vendor_id = ? "
+                + "AND LOWER(TRIM(b.status)) = 'emergency' "
+                + "AND LOWER(TRIM(ebs.notification_status)) = 'pending' "
+                + "ORDER BY b.bookingdate DESC";
 
         try (Connection connection = getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
@@ -256,14 +465,14 @@ public class HomeVendorDAO {
     private ArrayList<VendorJob> getPendingJobs(int vendorId) throws SQLException {
         ArrayList<VendorJob> pendingJobs = new ArrayList<>();
 
-        String sql = "SELECT s.servicename, b.subservicebooked, b.problem, b.bookingdate, b.deposit, c.name AS custName, b.id AS bookingId, b.distancekm, b.status " +
-                "FROM booking b " +
-                "JOIN service s ON b.service_id = s.id " +
-                "JOIN customer c ON b.customer_id = c.id " +
-                "WHERE s.vendor_id = ? " +
-                "AND LOWER(TRIM(b.status)) = 'pending' " +
-                "AND LOWER(TRIM(IFNULL(b.subservicebooked, ''))) <> 'emergency' " +
-                "ORDER BY b.bookingdate ASC";
+        String sql = "SELECT s.servicename, b.subservicebooked, b.problem, b.bookingdate, b.deposit, c.name AS custName, b.id AS bookingId, b.distancekm, b.status "
+                + "FROM booking b "
+                + "JOIN service s ON b.service_id = s.id "
+                + "JOIN customer c ON b.customer_id = c.id "
+                + "WHERE s.vendor_id = ? "
+                + "AND LOWER(TRIM(b.status)) = 'pending' "
+                + "AND LOWER(TRIM(IFNULL(b.subservicebooked, ''))) <> 'emergency' "
+                + "ORDER BY b.bookingdate ASC";
 
         try (Connection connection = getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
@@ -283,13 +492,13 @@ public class HomeVendorDAO {
     private ArrayList<VendorJob> getActiveJobs(int vendorId) throws SQLException {
         ArrayList<VendorJob> activeJobs = new ArrayList<>();
 
-        String sql = "SELECT s.servicename, b.subservicebooked, b.problem, b.bookingdate, b.deposit, c.name AS custName, b.id AS bookingId, b.distancekm, b.status " +
-                "FROM booking b " +
-                "JOIN service s ON b.service_id = s.id " +
-                "JOIN customer c ON b.customer_id = c.id " +
-                "WHERE s.vendor_id = ? " +
-                "AND LOWER(TRIM(b.status)) IN ('accepted', 'on the way', 'arrived', 'started', 'completed') " +
-                "ORDER BY b.bookingdate ASC";
+        String sql = "SELECT s.servicename, b.subservicebooked, b.problem, b.bookingdate, b.deposit, c.name AS custName, b.id AS bookingId, b.distancekm, b.status "
+                + "FROM booking b "
+                + "JOIN service s ON b.service_id = s.id "
+                + "JOIN customer c ON b.customer_id = c.id "
+                + "WHERE s.vendor_id = ? "
+                + "AND LOWER(TRIM(b.status)) IN ('accepted', 'on the way', 'arrived', 'started', 'completed', 'report') "
+                + "ORDER BY b.bookingdate ASC";
 
         try (Connection connection = getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
@@ -332,6 +541,11 @@ public class HomeVendorDAO {
             connection.setAutoCommit(false);
 
             try {
+                if (isBookingReported(connection, bookingId)) {
+                    connection.rollback();
+                    return "This booking has been reported and is under admin review.";
+                }
+
                 int emergencyServiceId = getEmergencyServiceIdForVendor(connection, vendorId, bookingId);
 
                 if (emergencyServiceId > 0) {
@@ -369,6 +583,11 @@ public class HomeVendorDAO {
             connection.setAutoCommit(false);
 
             try {
+                if (isBookingReported(connection, bookingId)) {
+                    connection.rollback();
+                    return "This booking has been reported and is under admin review.";
+                }
+
                 boolean emergencyRejected = rejectEmergencyBooking(connection, vendorId, bookingId);
 
                 if (emergencyRejected) {
@@ -403,16 +622,28 @@ public class HomeVendorDAO {
         }
     }
 
+    private boolean isBookingReported(Connection connection, int bookingId) throws SQLException {
+        String sql = "SELECT id FROM booking WHERE id = ? AND LOWER(TRIM(status)) = 'report' LIMIT 1 FOR UPDATE";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, bookingId);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                return resultSet.next();
+            }
+        }
+    }
+
     private int getEmergencyServiceIdForVendor(Connection connection, int vendorId, int bookingId) throws SQLException {
-        String sql = "SELECT ebs.service_id " +
-                "FROM emergency_booking_services ebs " +
-                "JOIN service s ON ebs.service_id = s.id " +
-                "JOIN booking b ON ebs.booking_id = b.id " +
-                "WHERE ebs.booking_id = ? " +
-                "AND s.vendor_id = ? " +
-                "AND LOWER(TRIM(b.status)) = 'emergency' " +
-                "AND LOWER(TRIM(ebs.notification_status)) = 'pending' " +
-                "LIMIT 1 FOR UPDATE";
+        String sql = "SELECT ebs.service_id "
+                + "FROM emergency_booking_services ebs "
+                + "JOIN service s ON ebs.service_id = s.id "
+                + "JOIN booking b ON ebs.booking_id = b.id "
+                + "WHERE ebs.booking_id = ? "
+                + "AND s.vendor_id = ? "
+                + "AND LOWER(TRIM(b.status)) = 'emergency' "
+                + "AND LOWER(TRIM(ebs.notification_status)) = 'pending' "
+                + "LIMIT 1 FOR UPDATE";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setInt(1, bookingId);
@@ -429,10 +660,10 @@ public class HomeVendorDAO {
     }
 
     private boolean acceptEmergencyBooking(Connection connection, int vendorId, int bookingId, int serviceId) throws SQLException {
-        String updateBookingSql = "UPDATE booking " +
-                "SET service_id = ?, status = 'Accepted' " +
-                "WHERE id = ? " +
-                "AND LOWER(TRIM(status)) = 'emergency'";
+        String updateBookingSql = "UPDATE booking "
+                + "SET service_id = ?, status = 'Accepted' "
+                + "WHERE id = ? "
+                + "AND LOWER(TRIM(status)) = 'emergency'";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(updateBookingSql)) {
             preparedStatement.setInt(1, serviceId);
@@ -445,12 +676,12 @@ public class HomeVendorDAO {
             }
         }
 
-        String acceptSql = "UPDATE emergency_booking_services ebs " +
-                "JOIN service s ON ebs.service_id = s.id " +
-                "SET ebs.notification_status = 'accepted', ebs.responded_at = NOW() " +
-                "WHERE ebs.booking_id = ? " +
-                "AND s.vendor_id = ? " +
-                "AND ebs.service_id = ?";
+        String acceptSql = "UPDATE emergency_booking_services ebs "
+                + "JOIN service s ON ebs.service_id = s.id "
+                + "SET ebs.notification_status = 'accepted', ebs.responded_at = NOW() "
+                + "WHERE ebs.booking_id = ? "
+                + "AND s.vendor_id = ? "
+                + "AND ebs.service_id = ?";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(acceptSql)) {
             preparedStatement.setInt(1, bookingId);
@@ -459,11 +690,11 @@ public class HomeVendorDAO {
             preparedStatement.executeUpdate();
         }
 
-        String closeOthersSql = "UPDATE emergency_booking_services " +
-                "SET notification_status = 'taken', responded_at = NOW() " +
-                "WHERE booking_id = ? " +
-                "AND service_id <> ? " +
-                "AND LOWER(TRIM(notification_status)) = 'pending'";
+        String closeOthersSql = "UPDATE emergency_booking_services "
+                + "SET notification_status = 'taken', responded_at = NOW() "
+                + "WHERE booking_id = ? "
+                + "AND service_id <> ? "
+                + "AND LOWER(TRIM(notification_status)) = 'pending'";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(closeOthersSql)) {
             preparedStatement.setInt(1, bookingId);
@@ -475,13 +706,13 @@ public class HomeVendorDAO {
     }
 
     private boolean acceptNormalPendingBooking(Connection connection, int vendorId, int bookingId) throws SQLException {
-        String sql = "UPDATE booking b " +
-                "JOIN service s ON b.service_id = s.id " +
-                "SET b.status = 'Accepted' " +
-                "WHERE b.id = ? " +
-                "AND s.vendor_id = ? " +
-                "AND LOWER(TRIM(b.status)) = 'pending' " +
-                "AND LOWER(TRIM(IFNULL(b.subservicebooked, ''))) <> 'emergency'";
+        String sql = "UPDATE booking b "
+                + "JOIN service s ON b.service_id = s.id "
+                + "SET b.status = 'Accepted' "
+                + "WHERE b.id = ? "
+                + "AND s.vendor_id = ? "
+                + "AND LOWER(TRIM(b.status)) = 'pending' "
+                + "AND LOWER(TRIM(IFNULL(b.subservicebooked, ''))) <> 'emergency'";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setInt(1, bookingId);
@@ -492,14 +723,14 @@ public class HomeVendorDAO {
     }
 
     private boolean rejectEmergencyBooking(Connection connection, int vendorId, int bookingId) throws SQLException {
-        String sql = "UPDATE emergency_booking_services ebs " +
-                "JOIN service s ON ebs.service_id = s.id " +
-                "JOIN booking b ON ebs.booking_id = b.id " +
-                "SET ebs.notification_status = 'rejected', ebs.responded_at = NOW() " +
-                "WHERE ebs.booking_id = ? " +
-                "AND s.vendor_id = ? " +
-                "AND LOWER(TRIM(b.status)) = 'emergency' " +
-                "AND LOWER(TRIM(ebs.notification_status)) = 'pending'";
+        String sql = "UPDATE emergency_booking_services ebs "
+                + "JOIN service s ON ebs.service_id = s.id "
+                + "JOIN booking b ON ebs.booking_id = b.id "
+                + "SET ebs.notification_status = 'rejected', ebs.responded_at = NOW() "
+                + "WHERE ebs.booking_id = ? "
+                + "AND s.vendor_id = ? "
+                + "AND LOWER(TRIM(b.status)) = 'emergency' "
+                + "AND LOWER(TRIM(ebs.notification_status)) = 'pending'";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setInt(1, bookingId);
@@ -510,14 +741,14 @@ public class HomeVendorDAO {
     }
 
     private BookingRefundInfo getNormalPendingBookingRefundInfo(Connection connection, int vendorId, int bookingId) throws SQLException {
-        String sql = "SELECT b.id AS booking_id, b.customer_id, COALESCE(b.deposit, 0.00) AS deposit_amount " +
-                "FROM booking b " +
-                "JOIN service s ON b.service_id = s.id " +
-                "WHERE b.id = ? " +
-                "AND s.vendor_id = ? " +
-                "AND LOWER(TRIM(b.status)) = 'pending' " +
-                "AND LOWER(TRIM(IFNULL(b.subservicebooked, ''))) <> 'emergency' " +
-                "LIMIT 1 FOR UPDATE";
+        String sql = "SELECT b.id AS booking_id, b.customer_id, COALESCE(b.deposit, 0.00) AS deposit_amount "
+                + "FROM booking b "
+                + "JOIN service s ON b.service_id = s.id "
+                + "WHERE b.id = ? "
+                + "AND s.vendor_id = ? "
+                + "AND LOWER(TRIM(b.status)) = 'pending' "
+                + "AND LOWER(TRIM(IFNULL(b.subservicebooked, ''))) <> 'emergency' "
+                + "LIMIT 1 FOR UPDATE";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setInt(1, bookingId);
@@ -538,13 +769,13 @@ public class HomeVendorDAO {
     }
 
     private boolean rejectNormalPendingBooking(Connection connection, int vendorId, int bookingId) throws SQLException {
-        String sql = "UPDATE booking b " +
-                "JOIN service s ON b.service_id = s.id " +
-                "SET b.status = 'Reject' " +
-                "WHERE b.id = ? " +
-                "AND s.vendor_id = ? " +
-                "AND LOWER(TRIM(b.status)) = 'pending' " +
-                "AND LOWER(TRIM(IFNULL(b.subservicebooked, ''))) <> 'emergency'";
+        String sql = "UPDATE booking b "
+                + "JOIN service s ON b.service_id = s.id "
+                + "SET b.status = 'Reject' "
+                + "WHERE b.id = ? "
+                + "AND s.vendor_id = ? "
+                + "AND LOWER(TRIM(b.status)) = 'pending' "
+                + "AND LOWER(TRIM(IFNULL(b.subservicebooked, ''))) <> 'emergency'";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setInt(1, bookingId);
@@ -571,10 +802,10 @@ public class HomeVendorDAO {
     }
 
     private Integer getCustomerWalletId(Connection connection, int customerId) throws SQLException {
-        String sql = "SELECT id " +
-                "FROM customer_wallet " +
-                "WHERE customer_id = ? " +
-                "LIMIT 1 FOR UPDATE";
+        String sql = "SELECT id "
+                + "FROM customer_wallet "
+                + "WHERE customer_id = ? "
+                + "LIMIT 1 FOR UPDATE";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setInt(1, customerId);
@@ -590,9 +821,9 @@ public class HomeVendorDAO {
     }
 
     private void insertCustomerWallet(Connection connection, int customerId, double amount) throws SQLException {
-        String sql = "INSERT INTO customer_wallet " +
-                "(customer_id, balance, updated_at) " +
-                "VALUES (?, ?, NOW())";
+        String sql = "INSERT INTO customer_wallet "
+                + "(customer_id, balance, updated_at) "
+                + "VALUES (?, ?, NOW())";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setInt(1, customerId);
@@ -602,9 +833,9 @@ public class HomeVendorDAO {
     }
 
     private void updateCustomerWallet(Connection connection, int walletId, double amount) throws SQLException {
-        String sql = "UPDATE customer_wallet " +
-                "SET balance = COALESCE(balance, 0.00) + ?, updated_at = NOW() " +
-                "WHERE id = ?";
+        String sql = "UPDATE customer_wallet "
+                + "SET balance = COALESCE(balance, 0.00) + ?, updated_at = NOW() "
+                + "WHERE id = ?";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setDouble(1, amount);
@@ -614,9 +845,9 @@ public class HomeVendorDAO {
     }
 
     private void insertWalletTransaction(Connection connection, int customerId, double amount, int bookingId) throws SQLException {
-        String sql = "INSERT INTO wallet_transactions " +
-                "(customer_id, amount, type, reference_id, created_at) " +
-                "VALUES (?, ?, 'Refund', ?, NOW())";
+        String sql = "INSERT INTO wallet_transactions "
+                + "(customer_id, amount, type, reference_id, created_at) "
+                + "VALUES (?, ?, 'Refund', ?, NOW())";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setInt(1, customerId);

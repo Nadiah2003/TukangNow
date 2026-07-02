@@ -1,6 +1,6 @@
 package DAO;
 
-import Config.DB_TukangNow;
+import Config.ConnectionManager;
 import Model.DetailVendor;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,7 +11,7 @@ import java.util.List;
 public class DetailVendorDAO {
 
     protected Connection getConnection() throws SQLException {
-        Connection connection = DB_TukangNow.getConnection();
+        Connection connection = ConnectionManager.getConnection();
 
         if (connection == null) {
             throw new SQLException("Database connection is null. Please check DB_TukangNow configuration.");
@@ -51,7 +51,7 @@ public class DetailVendorDAO {
 
         String updateVendorSql = "UPDATE vendor SET status = 'active', expireddate = ?, review_admin_id = ?, review_action = 'approved', review_date = NOW() WHERE id = ?";
         String deleteServiceSql = "DELETE FROM service WHERE vendor_id = ?";
-        String insertServiceSql = "INSERT INTO service (vendor_id, servicename, subservice, servicearea, startprice, avail_date, avail_time) VALUES (?, ?, '', '', 0.00, NULL, NULL)";
+        String insertServiceSql = "INSERT INTO service (vendor_id, servicename, subservice, startprice, avail_date, avail_time) VALUES (?, ?, '', 0.00, NULL, NULL)";
 
         Connection connection = null;
 

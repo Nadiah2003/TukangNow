@@ -1,6 +1,6 @@
 package DAO;
 
-import Config.DB_TukangNow;
+import Config.ConnectionManager;
 import Model.PaymentInitialData;
 import Model.PaymentProcessResult;
 import Model.PaymentRequestData;
@@ -19,9 +19,10 @@ public class PaymentDAO {
     private static final int CANCEL_REWARD_POINTS = 1000;
     private static final double REWARD_MINIMUM_PAYMENT = 100.00;
     private static final int REWARD_POINTS_PER_RINGGIT = 1;
+    private static final double EMERGENCY_RADIUS_KM = 30.0;
 
     public Connection getConnection() throws SQLException {
-        Connection connection = DB_TukangNow.getConnection();
+        Connection connection = ConnectionManager.getConnection();
 
         if (connection == null) {
             throw new SQLException("Database connection is null. Please check DB_TukangNow configuration.");
@@ -445,25 +446,11 @@ public class PaymentDAO {
     }
 
     private boolean isPasswordMatched(String inputPassword, String storedPassword) {
-        String inputRaw = inputPassword == null ? "" : inputPassword;
-        String storedRaw = storedPassword == null ? "" : storedPassword;
-
-        if (storedRaw.isEmpty()) {
+        if (inputPassword == null || storedPassword == null) {
             return false;
         }
 
-        if (inputRaw.equals(storedRaw)) {
-            return true;
-        }
-
-        if (inputRaw.trim().equals(storedRaw.trim())) {
-            return true;
-        }
-
-        String normalizedInput = normalizePassword(inputRaw);
-        String normalizedStored = normalizePassword(storedRaw);
-
-        return !normalizedInput.isEmpty() && normalizedInput.equals(normalizedStored);
+        return inputPassword.equals(storedPassword);
     }
 
     private String normalizePassword(String value) {
@@ -482,6 +469,7 @@ public class PaymentDAO {
 
     private int insertBooking(Connection connection, PaymentRequestData requestData, String bookingStatus) throws SQLException {
         String bookingDateTime = buildBookingDateTime(requestData.getDate(), requestData.getTime());
+        int finalServiceId = resolveServiceIdForBooking(connection, requestData);
 
         String sql = "INSERT INTO booking " +
                 "(deposit, totalamount, bookingdate, service_id, subservicebooked, problem, status, customer_id, travelfee, distancekm, evidencepath) " +
@@ -491,7 +479,7 @@ public class PaymentDAO {
             preparedStatement.setDouble(1, requestData.getAmountOriginal());
             preparedStatement.setDouble(2, requestData.getAmountOriginal());
             preparedStatement.setString(3, bookingDateTime);
-            preparedStatement.setInt(4, requestData.getServiceId());
+            preparedStatement.setInt(4, finalServiceId);
             preparedStatement.setString(5, safe(requestData.getSubservice()));
             preparedStatement.setString(6, safe(requestData.getProblem()));
             preparedStatement.setString(7, safe(bookingStatus));
@@ -511,7 +499,8 @@ public class PaymentDAO {
                     int bookingId = generatedKeys.getInt(1);
 
                     if (isEmergencyBooking(requestData)) {
-                        insertEmergencyBookingServices(connection, bookingId, requestData.getEmergencyServiceIds(), requestData.getServiceId());
+                        List<Integer> emergencyServiceIds = resolveEmergencyServiceIdsForBroadcast(connection, requestData, finalServiceId);
+                        insertEmergencyBookingServices(connection, bookingId, emergencyServiceIds);
                     }
 
                     return bookingId;
@@ -522,20 +511,395 @@ public class PaymentDAO {
         throw new SQLException("Failed to get booking ID.");
     }
 
-    private void insertEmergencyBookingServices(Connection connection, int bookingId, String emergencyServiceIds, int primaryServiceId) throws SQLException {
-        List<Integer> serviceIds = parseEmergencyServiceIds(emergencyServiceIds);
-
-        if (serviceIds.isEmpty() && primaryServiceId > 0) {
-            serviceIds.add(primaryServiceId);
+    private int resolveServiceIdForBooking(Connection connection, PaymentRequestData requestData) throws SQLException {
+        if (isEmergencyBooking(requestData)) {
+            return resolveEmergencyServiceId(connection, requestData);
         }
 
-        if (serviceIds.isEmpty()) {
-            return;
+        int selectedServiceId = requestData.getServiceId();
+        int vendorId = getNumericVendorId(requestData.getVendorId());
+        String selectedService = safe(requestData.getSubservice());
+
+        if (selectedService.isEmpty()) {
+            selectedService = safe(requestData.getService());
+        }
+
+        if (vendorId <= 0) {
+            throw new SQLException("Invalid vendor ID. Booking cannot be created.");
+        }
+
+        if (selectedServiceId > 0 && isServiceBelongsToVendor(connection, selectedServiceId, vendorId)) {
+            return selectedServiceId;
+        }
+
+        int matchedServiceId = findServiceIdByVendorAndService(connection, vendorId, selectedService);
+
+        if (matchedServiceId > 0) {
+            return matchedServiceId;
+        }
+
+        int fallbackServiceId = findFirstServiceIdByVendor(connection, vendorId);
+
+        if (fallbackServiceId > 0) {
+            return fallbackServiceId;
+        }
+
+        throw new SQLException("Service not found for selected vendor.");
+    }
+
+    private int getNumericVendorId(String vendorIdValue) {
+        String clean = safe(vendorIdValue);
+
+        if (clean.isEmpty()) {
+            return 0;
+        }
+
+        try {
+            return Integer.parseInt(clean);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
+
+    private boolean isServiceBelongsToVendor(Connection connection, int serviceId, int vendorId) throws SQLException {
+        String sql = "SELECT id FROM service WHERE id = ? AND vendor_id = ? LIMIT 1";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, serviceId);
+            preparedStatement.setInt(2, vendorId);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                return resultSet.next();
+            }
+        }
+    }
+
+    private int findServiceIdByVendorAndService(Connection connection, int vendorId, String selectedService) throws SQLException {
+        String cleanSelectedService = safe(selectedService);
+
+        if (cleanSelectedService.isEmpty()) {
+            return 0;
+        }
+
+        String sql = "SELECT id FROM service " +
+                "WHERE vendor_id = ? " +
+                "AND (" +
+                "LOWER(TRIM(servicename)) = LOWER(TRIM(?)) " +
+                "OR LOWER(TRIM(subservice)) = LOWER(TRIM(?)) " +
+                "OR LOWER(subservice) LIKE CONCAT('%', LOWER(TRIM(?)), '%')" +
+                ") " +
+                "ORDER BY id ASC " +
+                "LIMIT 1";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, vendorId);
+            preparedStatement.setString(2, cleanSelectedService);
+            preparedStatement.setString(3, cleanSelectedService);
+            preparedStatement.setString(4, cleanSelectedService);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt("id");
+                }
+            }
+        }
+
+        return 0;
+    }
+
+    private int findFirstServiceIdByVendor(Connection connection, int vendorId) throws SQLException {
+        String sql = "SELECT id FROM service WHERE vendor_id = ? ORDER BY id ASC LIMIT 1";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, vendorId);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt("id");
+                }
+            }
+        }
+
+        return 0;
+    }
+
+    private int resolveEmergencyServiceId(Connection connection, PaymentRequestData requestData) throws SQLException {
+        List<Integer> serviceIds = resolveEmergencyServiceIdsForBroadcast(connection, requestData, 0);
+
+        if (!serviceIds.isEmpty()) {
+            return serviceIds.get(0);
+        }
+
+        throw new SQLException("Service not found for emergency booking. No active vendor service matched this emergency category.");
+    }
+
+    private List<Integer> resolveEmergencyServiceIdsForBroadcast(Connection connection, PaymentRequestData requestData, int fallbackPrimaryServiceId) throws SQLException {
+        List<Integer> parsedServiceIds = parseEmergencyServiceIds(requestData.getEmergencyServiceIds());
+
+        String category = getEffectiveEmergencyCategory(connection, requestData, parsedServiceIds);
+        CustomerCoordinate customerCoordinate = getCustomerCoordinate(connection, requestData.getCustomerId());
+
+        if (customerCoordinate != null && isValidCoordinate(customerCoordinate.latitude, customerCoordinate.longitude) && !category.isEmpty()) {
+            List<Integer> expandedServiceIds = findEmergencyServiceIdsByCategoryAndDistance(connection, customerCoordinate.latitude, customerCoordinate.longitude, category);
+
+            if (!expandedServiceIds.isEmpty()) {
+                return expandedServiceIds;
+            }
+        }
+
+        if (!parsedServiceIds.isEmpty()) {
+            return parsedServiceIds;
+        }
+
+        if (fallbackPrimaryServiceId > 0 && isActiveServiceId(connection, fallbackPrimaryServiceId)) {
+            List<Integer> fallbackList = new ArrayList<>();
+            fallbackList.add(fallbackPrimaryServiceId);
+            return fallbackList;
+        }
+
+        if (requestData.getServiceId() > 0 && isActiveServiceId(connection, requestData.getServiceId())) {
+            List<Integer> fallbackList = new ArrayList<>();
+            fallbackList.add(requestData.getServiceId());
+            return fallbackList;
+        }
+
+        return new ArrayList<>();
+    }
+
+    private CustomerCoordinate getCustomerCoordinate(Connection connection, int customerId) throws SQLException {
+        String sql = "SELECT latitude, longitude FROM customer WHERE id = ? LIMIT 1";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, customerId);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    CustomerCoordinate coordinate = new CustomerCoordinate();
+                    coordinate.latitude = resultSet.getDouble("latitude");
+                    coordinate.longitude = resultSet.getDouble("longitude");
+                    return coordinate;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private String getEffectiveEmergencyCategory(Connection connection, PaymentRequestData requestData, List<Integer> parsedServiceIds) throws SQLException {
+        String category = safe(requestData.getCategory());
+
+        if (category.isEmpty() || "emergency".equalsIgnoreCase(category)) {
+            category = safe(requestData.getService());
+        }
+
+        if (category.isEmpty() || "emergency".equalsIgnoreCase(category)) {
+            category = safe(requestData.getSubservice());
+        }
+
+        if ((category.isEmpty() || "emergency".equalsIgnoreCase(category)) && requestData.getServiceId() > 0) {
+            category = getEmergencyCategoryFromServiceId(connection, requestData.getServiceId());
+        }
+
+        if ((category.isEmpty() || "emergency".equalsIgnoreCase(category)) && parsedServiceIds != null && !parsedServiceIds.isEmpty()) {
+            category = getEmergencyCategoryFromServiceId(connection, parsedServiceIds.get(0));
+        }
+
+        return normalizeEmergencyCategory(category);
+    }
+
+    private String getEmergencyCategoryFromServiceId(Connection connection, int serviceId) throws SQLException {
+        String sql = "SELECT servicename, subservice FROM service WHERE id = ? LIMIT 1";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, serviceId);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    String serviceName = safe(resultSet.getString("servicename"));
+                    String subservice = safe(resultSet.getString("subservice"));
+
+                    if (!serviceName.isEmpty()) {
+                        return serviceName;
+                    }
+
+                    return subservice;
+                }
+            }
+        }
+
+        return "";
+    }
+
+    private List<Integer> findEmergencyServiceIdsByCategoryAndDistance(Connection connection, double customerLatitude, double customerLongitude, String category) throws SQLException {
+        List<Integer> serviceIds = new ArrayList<>();
+
+        String cleanCategory = normalizeEmergencyCategory(category);
+        List<String> keywords = getEmergencyKeywords(cleanCategory);
+
+        String sql = "SELECT DISTINCT " +
+                "s.id AS service_id, " +
+                "s.servicename, " +
+                "s.subservice, " +
+                "v.latitude, " +
+                "v.longitude, " +
+                "(6371 * ACOS(LEAST(1, GREATEST(-1, " +
+                "COS(RADIANS(?)) * COS(RADIANS(v.latitude)) * COS(RADIANS(v.longitude) - RADIANS(?)) + " +
+                "SIN(RADIANS(?)) * SIN(RADIANS(v.latitude)) " +
+                ")))) AS distance_km " +
+                "FROM service s " +
+                "JOIN vendor v ON s.vendor_id = v.id " +
+                "WHERE LOWER(TRIM(v.status)) = 'active' " +
+                "AND v.latitude IS NOT NULL " +
+                "AND v.longitude IS NOT NULL " +
+                "HAVING distance_km <= ? " +
+                "ORDER BY distance_km ASC, s.id ASC";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setDouble(1, customerLatitude);
+            preparedStatement.setDouble(2, customerLongitude);
+            preparedStatement.setDouble(3, customerLatitude);
+            preparedStatement.setDouble(4, EMERGENCY_RADIUS_KM);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    int serviceId = resultSet.getInt("service_id");
+                    String serviceName = safe(resultSet.getString("servicename"));
+                    String subservice = safe(resultSet.getString("subservice"));
+
+                    if (serviceId <= 0) {
+                        continue;
+                    }
+
+                    if (!isMatchingEmergencyCategory(cleanCategory, serviceName, subservice, keywords)) {
+                        continue;
+                    }
+
+                    if (!serviceIds.contains(serviceId)) {
+                        serviceIds.add(serviceId);
+                    }
+                }
+            }
+        }
+
+        return serviceIds;
+    }
+
+    private boolean isMatchingEmergencyCategory(String category, String serviceName, String subservice, List<String> keywords) {
+        String cleanCategory = safe(category).toLowerCase();
+        String cleanServiceName = safe(serviceName).toLowerCase();
+        String cleanSubservice = safe(subservice).toLowerCase();
+
+        if (!cleanCategory.isEmpty()) {
+            if (cleanServiceName.equals(cleanCategory) || cleanServiceName.contains(cleanCategory)) {
+                return true;
+            }
+
+            if (cleanSubservice.equals(cleanCategory) || cleanSubservice.contains(cleanCategory)) {
+                return true;
+            }
+        }
+
+        for (String keyword : keywords) {
+            String cleanKeyword = safe(keyword).toLowerCase();
+
+            if (cleanKeyword.isEmpty()) {
+                continue;
+            }
+
+            if (cleanServiceName.contains(cleanKeyword)) {
+                return true;
+            }
+
+            if (cleanSubservice.contains(cleanKeyword)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private String normalizeEmergencyCategory(String category) {
+        String clean = safe(category).toLowerCase();
+
+        if (clean.contains("plumb") || clean.contains("pipe") || clean.contains("paip")) {
+            return "Plumbing";
+        }
+
+        if (clean.contains("elect") || clean.contains("wire") || clean.contains("wiring")) {
+            return "Electrical";
+        }
+
+        if (clean.contains("air") || clean.contains("aircond") || clean.contains("air conditioner") || clean.contains("aircon")) {
+            return "Aircond";
+        }
+
+        return safe(category);
+    }
+
+    private List<String> getEmergencyKeywords(String category) {
+        List<String> keywords = new ArrayList<>();
+        String clean = safe(category).toLowerCase();
+
+        if (clean.contains("plumb")) {
+            keywords.add("plumbing");
+            keywords.add("plumber");
+            keywords.add("plumb");
+            keywords.add("pipe");
+            keywords.add("paip");
+            return keywords;
+        }
+
+        if (clean.contains("elect")) {
+            keywords.add("electrical");
+            keywords.add("electrician");
+            keywords.add("electric");
+            keywords.add("elect");
+            keywords.add("wire");
+            keywords.add("wiring");
+            return keywords;
+        }
+
+        if (clean.contains("air")) {
+            keywords.add("aircond");
+            keywords.add("air conditioner");
+            keywords.add("aircon");
+            keywords.add("air conditioning");
+            keywords.add("air");
+            return keywords;
+        }
+
+        keywords.add(clean);
+
+        return keywords;
+    }
+
+    private boolean isActiveServiceId(Connection connection, int serviceId) throws SQLException {
+        String sql = "SELECT s.id " +
+                "FROM service s " +
+                "JOIN vendor v ON s.vendor_id = v.id " +
+                "WHERE s.id = ? " +
+                "AND LOWER(TRIM(v.status)) = 'active' " +
+                "LIMIT 1";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, serviceId);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                return resultSet.next();
+            }
+        }
+    }
+
+    private void insertEmergencyBookingServices(Connection connection, int bookingId, List<Integer> serviceIds) throws SQLException {
+        if (serviceIds == null || serviceIds.isEmpty()) {
+            throw new SQLException("No emergency vendor service IDs found. Emergency cannot be broadcast.");
         }
 
         String sql = "INSERT IGNORE INTO emergency_booking_services " +
                 "(booking_id, service_id, notification_status, notified_at) " +
                 "VALUES (?, ?, 'pending', NOW())";
+
+        int insertedCount = 0;
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             for (Integer serviceId : serviceIds) {
@@ -548,7 +912,17 @@ public class PaymentDAO {
                 preparedStatement.addBatch();
             }
 
-            preparedStatement.executeBatch();
+            int[] results = preparedStatement.executeBatch();
+
+            for (int batchResult : results) {
+                if (batchResult >= 0 || batchResult == Statement.SUCCESS_NO_INFO) {
+                    insertedCount++;
+                }
+            }
+        }
+
+        if (insertedCount <= 0) {
+            throw new SQLException("Emergency booking created but failed to notify vendors.");
         }
     }
 
@@ -576,6 +950,14 @@ public class PaymentDAO {
         }
 
         return serviceIds;
+    }
+
+    private boolean isValidCoordinate(double latitude, double longitude) {
+        if (latitude == 0.0 && longitude == 0.0) {
+            return false;
+        }
+
+        return latitude >= -90.0 && latitude <= 90.0 && longitude >= -180.0 && longitude <= 180.0;
     }
 
     private int parseIntLocal(String value) {
@@ -1155,6 +1537,11 @@ public class PaymentDAO {
         }
 
         return value.trim();
+    }
+
+    private static class CustomerCoordinate {
+        private double latitude;
+        private double longitude;
     }
 
     private static class DiscountData {

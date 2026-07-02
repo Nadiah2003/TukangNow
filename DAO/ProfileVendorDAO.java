@@ -1,6 +1,6 @@
 package DAO;
 
-import Config.DB_TukangNow;
+import Config.ConnectionManager;
 import Model.ProfileServiceInfo;
 import Model.ProfileVendorData;
 import Model.ProfileVendorInfo;
@@ -14,7 +14,7 @@ import java.util.Collections;
 public class ProfileVendorDAO {
 
     protected Connection getConnection() throws SQLException {
-        Connection connection = DB_TukangNow.getConnection();
+        Connection connection = ConnectionManager.getConnection();
 
         if (connection == null) {
             throw new SQLException("Database connection is null. Please check DB_TukangNow configuration.");
@@ -178,7 +178,7 @@ public class ProfileVendorDAO {
     public String updatePassword(int vendorId, String oldPass, String newPass) throws SQLException {
         String currentPassword = null;
 
-        String sqlCheck = "SELECT password FROM vendor WHERE id = ?";
+        String sqlCheck = "SELECT password FROM vendor WHERE id = ? LIMIT 1";
 
         try (Connection connection = getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sqlCheck)) {
@@ -192,7 +192,7 @@ public class ProfileVendorDAO {
             }
         }
 
-        if (currentPassword == null || !currentPassword.equals(oldPass)) {
+        if (currentPassword == null || oldPass == null || !oldPass.equals(currentPassword)) {
             return "Old password incorrect.";
         }
 
@@ -201,7 +201,7 @@ public class ProfileVendorDAO {
         try (Connection connection = getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sqlUpdate)) {
 
-            preparedStatement.setString(1, newPass);
+            preparedStatement.setString(1, safe(newPass));
             preparedStatement.setInt(2, vendorId);
 
             preparedStatement.executeUpdate();

@@ -1,6 +1,6 @@
 package DAO;
 
-import Config.DB_TukangNow;
+import Config.ConnectionManager;
 import Model.VendorWallet;
 import Model.VendorWalletTransaction;
 import java.sql.Connection;
@@ -12,7 +12,7 @@ import java.util.ArrayList;
 public class VendorWalletDAO {
 
     private Connection getConnection() throws SQLException {
-        Connection connection = DB_TukangNow.getConnection();
+        Connection connection = ConnectionManager.getConnection();
 
         if (connection == null) {
             throw new SQLException("Database connection is null.");
