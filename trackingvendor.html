@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tracking Vendor - TukangNow</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="css/trackingvendor.css">
+</head>
+<body>
+
+    <div class="header">
+        <button class="back-btn-small" id="btnBack" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+        </button>
+        <img src="image/logotukang.png" alt="TukangNow" class="mini-logo">
+        <h2>TUKANG<span class="text-now">NOW</span></h2>
+    </div>
+
+    <div id="map"></div>
+
+    <div class="tracking-card">
+        <div class="arrival-time">
+            <h2 id="etaText">Loading...</h2>
+            <p id="durationDistanceText">Please wait...</p>
+            <p id="statusText">Loading tracking status...</p>
+        </div>
+
+        <div class="timeline-container">
+            <div class="timeline-line"></div>
+            <div class="timeline-progress" id="progressLine"></div>
+
+            <div class="step-wrapper">
+                <div class="step-pin active" id="pin1">📍</div>
+                <span class="step-label">Vendor</span>
+            </div>
+            <div class="step-wrapper">
+                <div class="step-pin" id="pin2">🏠</div>
+                <span class="step-label">Customer</span>
+            </div>
+            <div class="step-wrapper">
+                <div class="step-pin" id="pin3">🛠️</div>
+                <span class="step-label">Started</span>
+            </div>
+            <div class="step-wrapper">
+                <div class="step-pin" id="pin4">✅</div>
+                <span class="step-label">Done</span>
+            </div>
+        </div>
+
+        <hr class="divider">
+
+        <div class="profile-section">
+            <div class="avatar-box">
+                <img src="image/profile.png" id="profileImg" alt="Profile">
+            </div>
+            <div class="v-details">
+                <h3 id="profileName">- <span class="rating" id="ratingBadge">0.0 ⭐</span></h3>
+                <p id="profileSubInfo">-</p>
+                <p id="profilePhoneText">-</p>
+            </div>
+            <a href="#" id="callBtn" class="call-btn">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+                </svg>
+            </a>
+        </div>
+
+        <div class="booking-info-box" id="bookingInfoBox"></div>
+
+        <div class="action-container" id="actionArea"></div>
+    </div>
+
+    <div class="bottom-nav" id="bottomNav"></div>
+
+    <div class="custom-alert-overlay" id="customAlertModal" style="display: none;">
+        <div class="alert-box">
+            <div class="alert-icon-circle" id="alertIconContainer"></div>
+            <h3 id="alertTitle">Alert</h3>
+            <p id="alertMessage">Message details go here.</p>
+            <button class="main-btn alert-btn" id="alertCloseBtn" type="button">Continue</button>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="js/trackingvendor.js"></script>
+</body>
+</html>

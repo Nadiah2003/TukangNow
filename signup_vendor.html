@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup Vendor - TukangNow</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/signup_vendor.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+</head>
+<body>
+
+    <div class="header">
+        <div class="header-content">
+            <img src="image/logotukang.png" alt="Logo" class="logo-img">
+            <div class="header-text">
+                <h1><span class="text-tukang">TUKANG</span><span class="text-now">NOW</span></h1>
+                <p>Fast & Trusted Home Services</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="signup-container">
+        <div class="signup-card">
+            <h2>Create your account</h2>
+            <p class="subtitle">Signup as a vendor to provide trusted home services</p>
+
+            <div class="card-scrollable-content">
+                <form id="vendorForm">
+                    <div class="input-row">
+                        <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A4.86 4.86 0 0 0 12 9a4.86 4.86 0 0 0-7.5 1.332V21m15 0h-15" />
+                        </svg>
+                        <input type="text" id="name" name="name" placeholder="Company's Name" required>
+                    </div>
+
+                    <div class="input-row">
+                        <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+                        </svg>
+                        <input type="email" id="email" name="email" placeholder="Company's Email" required>
+                    </div>
+
+                    <div class="phone-input-container" id="phoneContainer">
+                        <div class="country-code-box">
+                            <img src="icon/malaysia.png" class="flag-icon" alt="Flag">
+                            <span class="country-code-text">+60</span>
+                        </div>
+                        <input type="tel" id="phone" name="nophone" class="phone-number-box" placeholder="12-000 0502" maxlength="12" required>
+                    </div>
+                    <div id="phone-warn" class="phone-error-text">The phone number is too short! Please check again!</div>
+
+                    <div class="input-row" id="passwordRow">
+                        <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+                        </svg>
+                        <input type="password" id="password" name="password" placeholder="Password" required>
+                        <svg id="togglePassword" class="eye-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:20px; cursor:pointer;">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                        </svg>
+                    </div>
+
+                    <div class="password-requirements">
+                        <div id="req-length" class="requirement invalid">✖ Minimum 6 characters</div>
+                        <div id="req-capital" class="requirement invalid">✖ One capital letter (A-Z)</div>
+                        <div id="req-number" class="requirement invalid">✖ One number (0-9)</div>
+                        <div id="req-special" class="requirement invalid">✖ One special character (@#$%^&*)</div>
+                    </div>
+
+                    <div class="map-header-container">
+                        <p style="font-size: 0.85rem; margin: 0; font-weight: bold; color: var(--text-dark);">Search & Pin Company Location:</p>
+                        <p class="map-instruction-note">pin the location nearer the company's location as possible</p>
+                    </div>
+
+                    <div id="map" style="height: 250px; width: 100%; border-radius: 15px; margin-bottom: 12px; border: 2px solid var(--border-color); z-index: 1;"></div>
+                    <input type="hidden" id="latitude" name="latitude">
+                    <input type="hidden" id="longitude" name="longitude">
+
+                    <div class="input-row">
+                        <input type="text" id="address" name="address" placeholder="Company Address" required>
+                    </div>
+                    <div class="input-row">
+                        <input type="text" id="postcode" name="postcode" placeholder="Postcode" required>
+                    </div>
+                    <div class="input-row">
+                        <input type="text" id="city" name="city" placeholder="City" required>
+                    </div>
+                    <div class="input-row">
+                        <input type="text" id="state" name="state" placeholder="State" required>
+                    </div>
+
+                    <div class="input-row upload-box" id="dropZone">
+                        <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+                        </svg>
+                        <span id="fileNameDisplay"><span class="blue-text">Click here</span> or drag & drop license documents</span>
+                        <input type="file" id="docFile" class="hidden-file-input" multiple>
+                    </div>
+                    <div id="fileListContainer" class="file-list-container"></div>
+
+                    <div class="profile-upload-section">
+                        <div class="input-row upload-box" id="profileZone">
+                            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.963-2.275M15.75 9a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
+                            </svg>
+                            <span id="profileNameDisplay"><span class="blue-text">Click here</span> or drag & drop your professional photo</span>
+                            <input type="file" id="profileFile" class="hidden-file-input" accept="image/*">
+                        </div>
+                        <div id="profilePreviewContainer" class="profile-preview"></div>
+                    </div>
+                    
+                    <div class="terms-container">
+                        <input type="checkbox" id="agree" disabled required>
+                        <label for="agree">I agree to the <span class="terms-link" id="openModal">Terms of Service & Privacy Policy</span></label>
+                    </div>
+                    
+                    <button type="submit" class="btn-signup" id="submitBtn">Signup</button>
+                </form>
+
+                <div class="login-link">
+                    Already have an account? <a href="login.html">Login</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="termsModal" class="modal">
+        <div class="modal-content">
+            <h3>Terms of Service & Privacy Policy</h3>
+            <div class="modal-body">
+                <ul class="terms-list">
+                    <li>
+                        <strong>📋 Registration & Vetting / Pendaftaran & Semakan</strong><br>
+                        TukangNow provides a platform but does not guarantee a specific volume of leads or income. You must provide true information (business name, contact, ID). We reserve the right to approve or reject applications within 24-48 hours.
+                        <span class="muted-text">TukangNow menyediakan platform tetapi tidak menjamin jumlah pelanggan atau pendapatan. Anda mesti memberikan maklumat benar (nama bisnes, kenalan, ID). Kami berhak melulus atau menolak permohonan dalam 24-48 jam.</span>
+                    </li>
+                    <li>
+                        <strong>🛠️ Legal & Professionalism / Undang-undang & Profesionalisme</strong><br>
+                        You are responsible for required Malaysian licenses. Work must be performed with professional skill. All communication regarding bookings must be handled professionally.
+                        <span class="muted-text">Anda bertanggungjawab atas lesen Malaysia yang diperlukan. Kerja mesti dibuat dengan kemahiran profesional. Semua komunikasi tempahan mestilah profesional.</span>
+                    </li>
+                    <li>
+                        <strong>⏰ Attendance / Kehadiran</strong><br>
+                        You must arrive at the scheduled time. Repeated lateness or "no-shows" will result in account suspension.
+                        <span class="warning-text">Anda mesti sampai pada masa dijanjikan. Kelewatan berulang atau tidak hadir akan menyebabkan akaun digantung.</span>
+                    </li>
+                    <li>
+                        <strong>💰 Payment & Commission / Pembayaran & Komisen</strong><br>
+                        TukangNow holds the total payment securely. Funds are only released once the service is "Completed" and verified. A 5% service fee is deducted; the "Nett Payout" is the amount you receive.
+                        <span class="success-text">TukangNow memegang bayaran penuh dengan selamat. Dana hanya dilepaskan selepas kerja "Selesai" dan disahkan. Caj servis 5% ditolak; "Nett Payout" adalah jumlah yang anda terima.</span>
+                    </li>
+                    <li>
+                        <strong>🚫 Cash Policy & Payouts / Polisi Tunai & Bayaran</strong><br>
+                        Direct cash payments for platform bookings are strictly prohibited. Payouts to your bank account are processed within 3-5 business days after completion.
+                        <span class="warning-text">Bayaran tunai terus untuk tempahan platform adalah dilarang keras. Bayaran ke akaun bank diproses dalam 3-5 hari bekerja selepas selesai.</span>
+                    </li>
+                    <li>
+                        <strong>⚖️ Disputes & Cancellations / Pertikaian & Pembatalan</strong><br>
+                        Payment may be withheld if there is a quality dispute. If a customer cancels late, you may receive the deposit as compensation. If you (Vendor) fail to show up, the customer gets a full refund and you face suspension.
+                        <span class="muted-text">Bayaran boleh ditahan jika ada pertikaian kualiti. Jika pelanggan batal saat akhir, anda mungkin terima deposit sebagai pampasan. Jika anda gagal hadir, pelanggan dipulangkan wang penuh dan akaun anda digantung.</span>
+                    </li>
+                    <li>
+                        <strong>🔒 Data Privacy / Privasi Data</strong><br>
+                        Bank details (Account Name, Bank Name, Number) are collected solely for transferring your earned funds.
+                        <span class="muted-text">Maklumat bank (Nama Akaun, Bank, No. Akaun) diambil hanya untuk tujuan pemindahan hasil pendapatan anda.</span>
+                    </li>
+                </ul>
+            </div>
+            <button id="closeModal" disabled>I Agree</button>
+        </div>
+    </div>
+
+    <div id="statusModal" class="modal">
+        <div id="statusCard" class="status-card">
+            <div class="status-icon-circle"><span id="statusIcon"></span></div>
+            <h2 id="statusTitle">Status</h2>
+            <p id="statusMessage"></p>
+            <button id="statusOkBtn">Continue</button>
+        </div>
+    </div>
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+    <script src="js/signup_vendor.js"></script>
+</body>
+</html>

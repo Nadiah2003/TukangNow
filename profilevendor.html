@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vendor Profile - TukangNow</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="css/profilevendor.css">
+</head>
+<body>
+    <header class="top-nav">
+        <div class="logo-section">
+            <img src="image/logotukang.png" alt="Logo" class="mini-logo" />
+            <h2 class="brand-title">Tukang<span>Now</span></h2>
+        </div>
+        <div class="header-right">
+            <button id="btnLogout" class="btn-logout" type="button">
+                <svg class="logout-icon" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                    <polyline points="16 17 21 12 16 7"></polyline>
+                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                </svg>
+                Logout
+            </button>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="card profile-header-container">
+            <div class="profile-left-section">
+                <div class="profile-pic-wrapper">
+                    <img id="vProfileImg" src="image/profile.png" alt="Profile" class="main-profile-img" />
+                </div>
+                <div class="button-wrapper">
+                    <input type="file" id="profileInputHidden" class="hidden" accept="image/*" />
+                    <button id="btnChangePic" class="btn-change-profile" type="button">Change Profile</button>
+                </div>
+            </div>
+
+            <div class="profile-right-section">
+                <div class="name-row">
+                    <h2 id="vName">...</h2>
+                    <span class="badge verified">VERIFIED</span>
+                    <button id="btnOpenEditProfile" class="btn-edit-small" type="button" title="Edit Profile">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <p class="row-line">
+                    <strong>Email:</strong>
+                    <span id="vEmail" class="profile-email">-</span>
+                </p>
+
+                <div class="user-info-extra">
+                    <p>
+                        <strong>Phone:</strong>
+                        <span id="vPhone">-</span>
+                    </p>
+                    <p>
+                        <strong>Address:</strong>
+                        <span id="vAddress">-</span>
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section class="stats-row">
+            <div id="ratingText" class="stat-box">⭐ <strong>0.0</strong> (0 Reviews)</div>
+            <div id="jobsText" class="stat-box">🏆 <strong>0</strong> Jobs Completed</div>
+        </section>
+
+        <section class="card">
+            <div class="card-header">
+                <h3>My Service (<span id="vMainCategory"></span>)</h3>
+                <button id="btnOpenAddService" class="btn-service-add" type="button">ADD</button>
+            </div>
+
+            <ul id="subServiceList" class="sub-service-list"></ul>
+
+            <hr class="divider">
+
+            <div id="startingCostRow" class="info-row">
+                <p>
+                    <strong>Starting Cost:</strong>
+                    <span id="priceDisplay"></span>
+                    <input type="number" id="priceInput" class="edit-input hidden" />
+                </p>
+            </div>
+
+            <div class="button-group">
+                <button id="btnEditService" class="btn-edit" type="button">EDIT</button>
+                <button id="btnSaveService" class="btn-gradient hidden" type="button">SAVE CHANGES</button>
+            </div>
+        </section>
+
+        <div id="addServiceModal" class="modal">
+            <div class="modal-content">
+                <h3>Add Sub-Services</h3>
+                <div id="serviceInputRows" class="service-input-rows"></div>
+                <div class="add-service-actions">
+                    <button id="btnAddServiceInput" class="btn-small" type="button">ADD</button>
+                    <button id="btnSubmitSubServices" class="btn-gradient" type="button">SUBMIT</button>
+                    <button id="btnCancelAddService" class="btn-cancel-service" type="button">CANCEL</button>
+                </div>
+            </div>
+        </div>
+
+        <section class="card">
+            <h3>Availability</h3>
+
+            <div class="avail-item">
+                <div class="avail-info">
+                    <p>
+                        📅 <strong>Days:</strong>
+                        <span id="availDaysDisplay"></span>
+                    </p>
+
+                    <div id="availDayInputs" class="avail-input-group hidden">
+                        <label>
+                            From:
+                            <select id="availDayFromInput" class="edit-input">
+                                <option value="">Choose day</option>
+                                <option value="Sunday">Sunday</option>
+                                <option value="Monday">Monday</option>
+                                <option value="Tuesday">Tuesday</option>
+                                <option value="Wednesday">Wednesday</option>
+                                <option value="Thursday">Thursday</option>
+                                <option value="Friday">Friday</option>
+                                <option value="Saturday">Saturday</option>
+                            </select>
+                        </label>
+
+                        <label>
+                            Until:
+                            <select id="availDayUntilInput" class="edit-input">
+                                <option value="">Choose day</option>
+                                <option value="Sunday">Sunday</option>
+                                <option value="Monday">Monday</option>
+                                <option value="Tuesday">Tuesday</option>
+                                <option value="Wednesday">Wednesday</option>
+                                <option value="Thursday">Thursday</option>
+                                <option value="Friday">Friday</option>
+                                <option value="Saturday">Saturday</option>
+                            </select>
+                        </label>
+                    </div>
+
+                    <p>
+                        🕒 <strong>Time:</strong>
+                        <span id="availTimeDisplay"></span>
+                    </p>
+
+                    <div id="availTimeInputs" class="avail-input-group hidden">
+                        <label>
+                            From:
+                            <input type="time" id="availTimeFromInput" class="edit-input" />
+                        </label>
+
+                        <label>
+                            Until:
+                            <input type="time" id="availTimeUntilInput" class="edit-input" />
+                        </label>
+                    </div>
+                </div>
+
+                <button id="btnEditAvail" class="btn-edit" type="button">EDIT</button>
+            </div>
+
+            <button id="btnSaveAvail" class="btn-gradient hidden" type="button">SAVE AVAILABILITY</button>
+        </section>
+
+        <div class="action-list">
+            <button id="btnOpenPasswordModal" class="action-item" type="button">
+                <span>Change Password</span><span class="arrow">›</span>
+            </button>
+        </div>
+    </main>
+
+    <div id="editModal" class="modal" aria-hidden="true">
+        <div class="modal-content">
+            <h3>Edit Profile</h3>
+            <input type="text" id="editName" placeholder="Full Name" />
+            <input type="email" id="editEmail" placeholder="Email Address" />
+            <input type="text" id="editPhone" placeholder="Phone Number" />
+            <input type="text" id="editAddress" placeholder="Street Address" />
+            <div class="address-grid">
+                <input type="text" id="editPostcode" placeholder="Postcode" maxlength="5" />
+                <input type="text" id="editCity" placeholder="City" />
+            </div>
+            <select id="editState" class="styled-select-modal">
+                <option value="" disabled selected>Select State</option>
+                <option value="Johor">Johor</option>
+                <option value="Kedah">Kedah</option>
+                <option value="Kelantan">Kelantan</option>
+                <option value="Melaka">Melaka</option>
+                <option value="Negeri Sembilan">Negeri Sembilan</option>
+                <option value="Pahang">Pahang</option>
+                <option value="Perak">Perak</option>
+                <option value="Perlis">Perlis</option>
+                <option value="Pulau Pinang">Pulau Pinang</option>
+                <option value="Sabah">Sabah</option>
+                <option value="Sarawak">Sarawak</option>
+                <option value="Selangor">Selangor</option>
+                <option value="Terengganu">Terengganu</option>
+                <option value="W.P. Kuala Lumpur">W.P. Kuala Lumpur</option>
+            </select>
+            <div class="modal-btns">
+                <button id="btnCancelEditProfile" class="cancel-btn" type="button">Cancel</button>
+                <button id="btnSaveProfile" class="save-btn" type="button">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="passwordModal" class="modal" aria-hidden="true">
+        <div class="modal-content password-modal-content">
+            <h3 class="password-title">Change Password</h3>
+
+            <div class="password-field">
+                <input type="password" id="oldPass" placeholder="Old Password" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');" />
+                <button id="toggleOldPass" class="password-eye-btn" type="button">
+                    <svg id="oldPassEyeOpen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                    <svg id="oldPassEyeClosed" class="hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20C5 20 1 12 1 12a20.29 20.29 0 0 1 5.06-5.94"></path>
+                        <path d="M9.9 4.24A10.45 10.45 0 0 1 12 4c7 0 11 8 11 8a20.08 20.08 0 0 1-3.16 4.19"></path>
+                        <path d="M14.12 14.12A3 3 0 0 1 9.88 9.88"></path>
+                        <line x1="1" y1="1" x2="23" y2="23"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="password-field">
+                <input type="password" id="newPass" placeholder="New Password" autocomplete="new-password" />
+                <button id="toggleNewPass" class="password-eye-btn" type="button">
+                    <svg id="newPassEyeOpen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                    <svg id="newPassEyeClosed" class="hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20C5 20 1 12 1 12a20.29 20.29 0 0 1 5.06-5.94"></path>
+                        <path d="M9.9 4.24A10.45 10.45 0 0 1 12 4c7 0 11 8 11 8a20.08 20.08 0 0 1-3.16 4.19"></path>
+                        <path d="M14.12 14.12A3 3 0 0 1 9.88 9.88"></path>
+                        <line x1="1" y1="1" x2="23" y2="23"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <div id="reqList" class="password-req-list">
+                <div id="char-length" class="requirement invalid"><span class="icon">✖</span> At least 8 characters</div>
+                <div id="char-upper" class="requirement invalid"><span class="icon">✖</span> At least one uppercase</div>
+                <div id="char-number" class="requirement invalid"><span class="icon">✖</span> At least one number</div>
+                <div id="char-special" class="requirement invalid"><span class="icon">✖</span> At least one special char</div>
+            </div>
+
+            <div class="password-modal-actions">
+                <button id="btnCancelPassword" type="button">Cancel</button>
+                <button id="btnUpdatePass" type="button" disabled>Update</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="statusPopup" class="status-popup hidden">
+        <div class="status-popup-box">
+            <div id="statusPopupIcon" class="status-popup-icon">×</div>
+            <h2 id="statusPopupTitle">Failed!</h2>
+            <p id="statusPopupMessage">Something went wrong.</p>
+            <button id="statusPopupBtn" type="button">Continue</button>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <a href="homevendor.html" class="nav-item">
+            <svg class="nav-svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"></path>
+            </svg>
+            <span>Home</span>
+        </a>
+        <a href="job.html" class="nav-item">
+            <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+            </svg>
+            <span>My Job</span>
+        </a>
+        <a href="walletvendor.html" class="nav-item">
+            <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"></path>
+                <path d="M4 6v12c0 1.1.9 2 2 2h14v-4"></path>
+                <path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4h-4z"></path>
+            </svg>
+            <span>Wallet</span>
+        </a>
+        <a href="profilevendor.html" class="nav-item active">
+            <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <span>Profile</span>
+        </a>
+    </nav>
+
+    <script src="js/profilevendor.js"></script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>View Vendor Profile - TukangNow</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/viewvendor.css">
+</head>
+<body>
+
+    <div class="top-bar">
+        <button id="btnBack" class="back-btn" type="button" aria-label="Go back">←</button>
+        <span>Vendor Profile</span>
+    </div>
+
+    <div class="profile-container">
+        <div class="profile-header">
+            <img id="vImg" src="image/profile.png" class="profile-img" alt="Vendor profile picture">
+            <h2 id="vName">Loading...</h2>
+            <div class="v-tag" id="vType">Category</div>
+            <div class="v-subservice" id="vSubService">Sub-service</div>
+            <div class="v-rating" id="vRating">⭐ 0.0</div>
+        </div>
+
+        <div class="detail-card">
+            <div class="detail-row">
+                <span class="label">Starting From</span>
+                <span class="value price" id="vPrice">RM 0.00</span>
+            </div>
+            <div class="detail-row">
+                <span class="label">Available Date</span>
+                <span class="value" id="vDate">-</span>
+            </div>
+            <div class="detail-row">
+                <span class="label">Available Time</span>
+                <span class="value" id="vTime">-</span>
+            </div>
+        </div>
+
+        <button id="bookBtn" class="btn-book" type="button">Book Now</button>
+    </div>
+
+    <div id="statusModal" class="modal-overlay" aria-hidden="true">
+        <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+            <div id="modalIconCircle" class="modal-icon-circle">
+                <span id="modalIcon" class="modal-icon">✕</span>
+            </div>
+            <h2 id="modalTitle">Failed!</h2>
+            <p id="modalMessage">Error message goes here.</p>
+            <button id="modalBtn" class="modal-btn" type="button">Continue</button>
+        </div>
+    </div>
+
+    <script src="js/viewvendor.js"></script>
+</body>
+</html>

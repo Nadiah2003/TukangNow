@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vendor Details - TukangNow</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/detailvendor.css">
+</head>
+<body>
+
+    <div class="top-bar">
+        <button id="backBtn" class="back-btn">←</button>
+        <span>Application Vendor</span>
+    </div>
+
+    <div class="main-content">
+        <div class="detail-card">
+            <h3>Application Details</h3>
+            <div class="profile-section">
+                <div class="profile-img-box">
+                    <img id="vendorProfileImg" src="image/profile.png" alt="Profile">
+                </div>
+                <div class="vendor-info">
+                    <p><strong>Name:</strong> <span id="vName">-</span></p>
+                    <p><strong>Phone:</strong> <span id="vPhone">-</span></p>
+                    <p><strong>Email:</strong> <span id="vEmail">-</span></p>
+                    <div id="documentLinks"></div>
+                </div>
+            </div>
+            <div class="action-buttons">
+                <button class="btn-approve" id="approveBtn">APPROVE</button>
+                <button class="btn-reject" id="rejectBtn">REJECT</button>
+            </div>
+        </div>
+
+        <div id="serviceSection" class="detail-card">
+            <h3>Service Details</h3>
+            <form id="serviceForm">
+                <p class="form-note">Select the service provided by the vendor based on the attached document.</p>
+
+                <div id="dynamicServiceList">
+                    <div class="service-row">
+                        <div class="input-group">
+                            <span class="icon">🛠</span>
+                            <select name="serviceName" class="service-select">
+                                <option value="Electrical">Electrical</option>
+                                <option value="Plumber">Plumber</option>
+                                <option value="Lawn Mower">Lawn Mower</option>
+                            </select>
+                        </div>
+                        <button type="button" class="btn-add" id="addServiceBtn">ADD</button>
+                    </div>
+                </div>
+                
+                <p class="form-note">Enter the latest expiry date stated in the attached document.</p>
+
+                <div class="input-group expiry-group">
+                    <span class="icon">📅</span>
+                    <input type="date" id="expireDate" required>
+                </div>
+
+                <button type="button" class="btn-submit" id="submitApprovalBtn">SUBMIT</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="statusModal" class="modal-overlay">
+        <div class="modal-content">
+            <div id="modalIcon" class="modal-icon">✕</div>
+            <h2 id="modalTitle">Status</h2>
+            <p id="modalMessage">Message goes here.</p>
+            <button class="btn-continue" id="modalContinueBtn">Continue</button>
+        </div>
+    </div>
+
+    <script src="js/detailvendor.js"></script>
+</body>
+</html>

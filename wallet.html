@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Wallet - TukangNow</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/wallet.css">
+</head>
+<body>
+    <div class="top-bar">
+        <button id="btnBack" class="back-btn" type="button" aria-label="Go back">←</button>
+        <span>My Wallet</span>
+    </div>
+
+    <div class="wallet-container">
+        <div class="balance-card">
+            <div class="balance-label">Available Balance</div>
+            <div id="walletBalance" class="balance-amount">RM 0.00</div>
+            <div class="wallet-actions">
+                <button id="btnTopUp" class="btn-action" type="button"><span>⁺</span> Top Up</button>
+                <button id="btnWithdraw" class="btn-action" type="button"><span>⁻</span> Withdraw</button>
+            </div>
+        </div>
+
+        <div class="history-section">
+            <h3 class="section-title">Transaction History</h3>
+            <div id="transactionList" class="transaction-list">
+                <div class="empty-state">Loading transactions...</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="walletModal" class="modal-overlay" aria-hidden="true">
+        <div class="modal-card" role="dialog" aria-modal="true">
+            <h3 id="modalTitle">Top Up</h3>
+            <form id="walletForm">
+                <div class="input-group">
+                    <label for="amountInput">Amount (RM)</label>
+                    <input type="number" id="amountInput" class="input-field" min="1" step="0.01" placeholder="0.00" required>
+                </div>
+
+                <div id="bankFields" class="bank-fields">
+                    <div class="input-group">
+                        <label for="bankNameInput">Bank Name</label>
+                        <input type="text" id="bankNameInput" class="input-field" placeholder="e.g. Maybank">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="accountNoInput">Account No</label>
+                        <input type="text" id="accountNoInput" class="input-field" placeholder="Enter account number">
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" id="btnCancelModal" class="btn-modal-cancel">Cancel</button>
+                    <button type="submit" class="btn-modal-submit">Confirm</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="messageModal" class="modal-overlay" aria-hidden="true">
+        <div class="modal-card small-modal" role="dialog" aria-modal="true">
+            <h3 id="messageTitle">Notice</h3>
+            <p id="messageText">Message</p>
+            <button type="button" id="btnCloseMessage" class="btn-modal-submit">OK</button>
+        </div>
+    </div>
+
+    <script src="js/wallet.js"></script>
+</body>
+</html>

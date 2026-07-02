@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment - TukangNow</title>
+    <link rel="stylesheet" href="css/payment.css">
+</head>
+<body>
+    <div class="top-bar">
+        <button onclick="history.back()" class="back-btn">←</button>
+        <span>Booking Vendor</span>
+    </div>
+
+    <div class="container">
+        <div class="card summary-card">
+            <div class="summary-info">
+                <p id="paymentTypeTitle">Total Payment</p>
+                <h2 id="displayAmount">RM0.00</h2>
+            </div>
+            <div class="service-tag" id="displayService">Service Name</div>
+        </div>
+
+        <div class="card rewards-card" id="rewardsCardWrapper">
+            <div class="tab-header">Discounts & Rewards</div>
+
+            <div class="reward-points-section">
+                <label class="checkbox-container">
+                    <input type="checkbox" id="usePointsCheckbox">
+                    <span class="checkmark"></span>
+                    <span id="pointsLabel">Use Reward Points (Checking...)</span>
+                </label>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="voucher-section">
+                <p class="section-label">Enter Promo Code</p>
+
+                <input type="text" name="prevent_autofill_username" style="display:none" aria-hidden="true">
+                <input type="password" name="prevent_autofill_password" style="display:none" aria-hidden="true">
+
+                <div class="voucher-code-row">
+                    <input type="text" id="voucherCodeInput" placeholder="e.g. TUKANG10" autocomplete="off">
+                    <button type="button" id="applyCodeBtn">Apply</button>
+                </div>
+            </div>
+
+            <div class="discount-summary" id="discountSummaryBlock" style="display: none;">
+                <hr class="divider">
+                <p>Original Amount: <span id="summaryOriginal">RM0.00</span></p>
+                <p id="summaryPointsRow" style="display: none;">Points Discount: -<span id="summaryPoints">RM0.00</span></p>
+                <p id="summaryVoucherRow" style="display: none;">Voucher Discount: -<span id="summaryVoucher">RM0.00</span></p>
+                <p class="final-payable">Final Payable: <span id="summaryFinal">RM0.00</span></p>
+            </div>
+        </div>
+
+        <div class="card banking-card">
+            <div class="tab-header">Select Payment Method</div>
+
+            <div class="payment-methods">
+                <label class="method-option">
+                    <input type="radio" name="paymentMethod" value="fpx" checked>
+                    <div class="method-box">
+                        <span class="method-title">Online Banking (FPX)</span>
+                        <p class="method-desc">Pay securely via ToyyibPay gateway using your bank account.</p>
+                    </div>
+                </label>
+
+                <label class="method-option">
+                    <input type="radio" name="paymentMethod" value="ewallet">
+                    <div class="method-box">
+                        <span class="method-title">Internal E-Wallet</span>
+                        <p class="method-desc">Deduct directly from your TukangNow wallet balance (<span id="walletBalanceLabel">RM0.00</span>).</p>
+                    </div>
+                </label>
+            </div>
+
+            <div class="payment-content">
+                <button class="pay-btn" id="payNowBtn">Pay Now</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="passwordModal">
+        <div class="modal-content">
+            <h2 id="passwordModalTitle">Security Verification</h2>
+            <p id="passwordModalMessage">Please enter your account password to confirm this transaction:</p>
+
+            <div class="password-input-wrapper">
+                <input type="password" id="modalPasswordInput" placeholder="Enter password here">
+            </div>
+
+            <div class="modal-action-buttons">
+                <button class="modal-btn cancel-btn" id="modalCancelBtn">Cancel</button>
+                <button class="modal-btn confirmation-btn" id="modalConfirmBtn">Confirm Payment</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="notificationModal">
+        <div class="modal-content">
+            <div class="status-icon" id="statusIcon">
+                <span id="iconSymbol">×</span>
+            </div>
+            <h2 id="modalTitle">Failed!</h2>
+            <p id="modalMessage">Failed, please try again!</p>
+            <button class="modal-btn confirmation-btn" id="modalContinueBtn">Continue</button>
+        </div>
+    </div>
+
+    <script src="js/payment.js"></script>
+</body>
+</html>

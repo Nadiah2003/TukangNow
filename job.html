@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Job History - TukangNow</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="css/job.css">
+</head>
+<body>
+
+<header class="top-nav">
+    <div class="logo-section">
+        <img src="image/logotukang.png" alt="Logo" class="mini-logo" />
+        <h2>Tukang<span>Now</span></h2>
+    </div>
+</header>
+
+<main class="container">
+    <h2 class="page-title">Job History (Completed)</h2>
+
+    <div class="table-wrapper">
+        <table class="job-table">
+            <thead>
+                <tr>
+                    <th>Customer Details</th>
+                    <th>Job Details</th>
+                    <th>Total Amount</th>
+                </tr>
+            </thead>
+            <tbody id="jobTableBody">
+                <tr class="empty-row">
+                    <td colspan="3">Loading job history...</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div id="jobCards" class="job-cards" aria-label="Job history cards">
+            <div class="job-card">
+                <h4 class="job-card__name">Loading job history...</h4>
+            </div>
+        </div>
+    </div>
+</main>
+
+<nav class="bottom-nav">
+    <a href="homevendor.html" class="nav-item">
+        <svg class="nav-svg" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"></path>
+        </svg>
+        <span>Home</span>
+    </a>
+
+    <a href="job.html" class="nav-item active">
+        <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+        </svg>
+        <span>My Job</span>
+    </a>
+
+    <a href="walletvendor.html" class="nav-item">
+        <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"></path>
+            <path d="M4 6v12c0 1.1.9 2 2 2h14v-4"></path>
+            <path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4h-4z"></path>
+        </svg>
+        <span>Wallet</span>
+    </a>
+
+    <a href="profilevendor.html" class="nav-item">
+        <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+        <span>Profile</span>
+    </a>
+</nav>
+
+<div id="popupOverlay" class="popup-overlay" aria-hidden="true">
+    <div class="popup-card" role="dialog" aria-modal="true" aria-labelledby="popupTitle">
+        <div class="popup-icon">
+            <span id="popupIconSymbol">✕</span>
+        </div>
+
+        <h3 id="popupTitle" class="popup-title">Failed!</h3>
+        <p id="popupMessage" class="popup-message">Message goes here.</p>
+
+        <button id="popupContinueBtn" class="popup-btn" type="button">Continue</button>
+    </div>
+</div>
+
+<script src="js/job.js"></script>
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report - TukangNow</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/report.css">
+</head>
+<body>
+    <header class="top-bar">
+        <button id="btnBack" class="back-btn" type="button">←</button>
+        <div>
+            <h2 id="pageTitle">Submit Report</h2>
+            <p id="pageSubtitle">Tell admin what happened so we can review it.</p>
+        </div>
+    </header>
+
+    <main id="reportMain" class="report-main">
+        <section id="submitSection" class="report-card">
+            <h3>Report Details</h3>
+
+            <form id="reportForm">
+                <input id="bookingId" type="hidden">
+
+                <div class="auto-report-box">
+                    <p id="bookingContextText">Booking ID: -</p>
+                </div>
+
+                <label for="reportType">Report Type</label>
+                <select id="reportType" required>
+                    <option value="">Choose report type</option>
+                    <option value="Payment Issue">Payment Issue</option>
+                    <option value="Booking Issue">Booking Issue</option>
+                    <option value="Vendor Issue">Vendor Issue</option>
+                    <option value="Customer Issue">Customer Issue</option>
+                    <option value="Service Quality Issue">Service Quality Issue</option>
+                    <option value="Refund Issue">Refund Issue</option>
+                    <option value="Account Issue">Account Issue</option>
+                    <option value="Technical Issue">Technical Issue</option>
+                    <option value="Other">Other</option>
+                </select>
+
+                <label for="explanation">Explanation</label>
+                <textarea id="explanation" maxlength="1000" placeholder="Explain your issue clearly..." required></textarea>
+
+                <p id="charCount" class="char-count">0 / 1000</p>
+
+                <button id="btnSubmitReport" class="submit-btn" type="submit">Submit Report</button>
+            </form>
+        </section>
+
+        <section id="adminSection" class="report-card report-card-wide" style="display:none;">
+            <div class="report-list-header">
+                <div>
+                    <h3>Admin Report List</h3>
+                    <p>Review report details, booking details, users involved, chat, suspend or ban accounts.</p>
+                </div>
+                <button id="btnRefreshReports" class="refresh-btn" type="button">Refresh</button>
+            </div>
+
+            <div id="reportList" class="report-list">
+                <div class="empty-state">Loading reports...</div>
+            </div>
+        </section>
+    </main>
+
+    <div id="detailModal" class="modal-overlay">
+        <div class="detail-card">
+            <div class="detail-header">
+                <div>
+                    <h2 id="detailTitle">Report Details</h2>
+                    <p id="detailSubtitle">Full report information</p>
+                </div>
+                <button id="detailCloseBtn" class="modal-close-btn" type="button">×</button>
+            </div>
+
+            <div id="detailContent" class="detail-content"></div>
+        </div>
+    </div>
+
+    <div id="statusModal" class="modal-overlay">
+        <div id="statusCard" class="status-card">
+            <div class="status-icon-circle"><span id="statusIcon"></span></div>
+            <h2 id="statusTitle">Status</h2>
+            <p id="statusMessage"></p>
+            <button id="statusOkBtn" class="btn-modal" type="button">Continue</button>
+        </div>
+    </div>
+
+    <script src="js/report.js"></script>
+</body>
+</html>

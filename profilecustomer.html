@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - TukangNow</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/profilecustomer.css">
+</head>
+<body>
+    <header class="top-nav">
+        <div class="logo-section">
+            <img src="image/logotukang.png" alt="Logo" class="mini-logo">
+            <h2>TUKANG<span class="text-now">NOW</span></h2>
+        </div>
+        <div class="header-right">
+            <button id="btnLogout" class="btn-logout" type="button">Logout</button>
+        </div>
+    </header>
+
+    <main class="profile-main">
+        <section class="profile-card">
+            <div class="profile-content-wrapper">
+                <div class="image-upload-container">
+                    <img id="displayImg" src="image/profile.png" class="profile-img" alt="Profile Image">
+                    <button id="btnOpenImageModal" class="change-pic-btn" type="button">Change Profile</button>
+                </div>
+
+                <div class="profile-info-section">
+                    <h2 id="userName">Loading...</h2>
+                    <p class="row-line">
+                        <strong>Email:</strong> <span id="userEmail" class="profile-email">-</span>
+                    </p>
+                    <div class="user-info-extra">
+                        <p><strong>Phone:</strong> <span id="userPhone">-</span></p>
+                        <p><strong>Address:</strong> <span id="userAddress">-</span></p>
+                        <p><span id="userPostcode"></span> <span id="userCity"></span></p>
+                        <p><span id="userState"></span><span id="userCountryWrap">, <span id="userCountry"></span></span></p>
+                    </div>
+                    <button id="btnOpenEditModal" class="edit-btn" type="button">Edit Profile</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="action-list">
+            <button id="btnOpenPasswordModal" class="action-item" type="button">
+                <span>Change Password</span>
+                <span class="arrow">›</span>
+            </button>
+        </section>
+    </main>
+
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <h3>Edit Profile</h3>
+            <div class="modal-scroll-area">
+                <div class="input-group">
+                    <label>Full Name</label>
+                    <input type="text" id="editName">
+                </div>
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" id="editEmail">
+                </div>
+                <div class="input-group">
+                    <label>Phone Number</label>
+                    <input type="text" id="editPhone">
+                </div>
+                <div class="input-group">
+                    <label>Address</label>
+                    <textarea id="editAddress" rows="2"></textarea>
+                </div>
+
+                <div class="input-group">
+                    <label>State</label>
+                    <div class="dropdown-input-wrapper">
+                        <input type="text" id="editState" list="stateList" placeholder="Click to select or type to search State..." autocomplete="off">
+                        <datalist id="stateList"></datalist>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>City</label>
+                    <div class="dropdown-input-wrapper">
+                        <input type="text" id="editCity" list="cityList" placeholder="Click to select or type to search City..." disabled autocomplete="off">
+                        <datalist id="cityList"></datalist>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="input-group">
+                        <label>Postcode</label>
+                        <div class="dropdown-input-wrapper">
+                            <input type="text" id="editPostcode" list="postcodeList" placeholder="Postcode..." disabled autocomplete="off">
+                            <datalist id="postcodeList"></datalist>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Country</label>
+                        <input type="text" id="editCountry">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-btns">
+                <button id="btnCancelEdit" class="cancel-btn" type="button">Cancel</button>
+                <button id="btnSaveEdit" class="save-btn" type="button">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="imageModal" class="modal">
+        <div class="modal-content">
+            <h3>Update Profile Picture</h3>
+            <input type="file" id="modalFileInput" accept="image/*" class="file-input">
+            <div class="modal-btns">
+                <button id="btnCancelImage" class="cancel-btn" type="button">Cancel</button>
+                <button id="btnUploadImage" class="save-btn" type="button">Upload</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="passwordModal" class="modal">
+        <div class="modal-content">
+            <h3>Change Password</h3>
+            <div class="password-wrapper">
+                <input type="password" id="oldPass" placeholder="Old Password">
+                <span class="toggle-password" onclick="togglePass('oldPass', this)">
+                    <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                </span>
+            </div>
+            <div class="password-wrapper">
+                <input type="password" id="newPass" placeholder="New Password">
+                <span class="toggle-password" onclick="togglePass('newPass', this)">
+                    <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                </span>
+            </div>
+            <div class="requirement-list">
+                <div id="char-length" class="requirement invalid">✖ Minimum 6 characters</div>
+                <div id="char-upper" class="requirement invalid">✖ One capital letter (A-Z)</div>
+                <div id="char-number" class="requirement invalid">✖ One number (0-9)</div>
+                <div id="char-special" class="requirement invalid">✖ One special character (@#$%^&*)</div>
+            </div>
+            <div class="modal-btns">
+                <button id="btnCancelPass" class="cancel-btn" type="button">Cancel</button>
+                <button id="btnUpdatePass" class="save-btn" type="button" disabled>Update</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="logoutModal" class="modal">
+        <div class="modal-content">
+            <h3>Confirm Logout</h3>
+            <p class="logout-text">Are you sure you want to log out from TukangNow?</p>
+            <div class="modal-btns">
+                <button id="cancelLogout" class="cancel-btn" type="button">Cancel</button>
+                <button id="confirmLogout" class="save-btn logout-confirm-btn" type="button">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="statusModal" class="status-overlay">
+        <div class="status-card">
+            <div id="statusIconCircle" class="status-icon-circle">
+                <span id="statusIcon" class="status-icon"></span>
+            </div>
+            <h3 id="statusTitle"></h3>
+            <p id="statusMessage"></p>
+            <button id="statusOkBtn" class="status-btn" type="button">OK</button>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <a href="homecustomer.html" class="nav-item">
+            <svg class="nav-svg" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+            <span>Home</span>
+        </a>
+        <a href="myorder.html" class="nav-item">
+            <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path><path d="M3 6h18"></path><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+            <span>My Order</span>
+        </a>
+        <a href="wallet.html" class="nav-item">
+            <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"></path><path d="M4 6v12c0 1.1.9 2 2 2h14v-4"></path><path d="M18 12a2 2 0 0 0-2-2c0 1.1.9 2 2 2h4v-4h-4z"></path></svg>
+            <span>Wallet</span>
+        </a>
+        <a href="profilecustomer.html" class="nav-item active">
+            <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            <span>Profile</span>
+        </a>
+    </div>
+
+    <script src="js/profilecustomer.js"></script>
+</body>
+</html>

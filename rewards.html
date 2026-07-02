@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rewards - TukangNow</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/rewards.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <div class="top-bar">
+        <button id="btnBack" class="back-btn" type="button">←</button>
+        <span>Rewards</span>
+    </div>
+
+    <div class="profile-summary">
+        <p>Hello, <strong class="user-name" id="userNameDisplay">Loading...</strong>!</p>
+        <div class="point-display-card">
+            <span class="point-label">Your Current Balance</span>
+            <h2 id="userPointsDisplay">0 <small>Pts</small></h2>
+        </div>
+    </div>
+
+    <div class="rewards-tabs">
+        <button class="tab-btn active" type="button" data-tab="catalog">Available</button>
+        <button class="tab-btn" type="button" data-tab="myvouchers">My Vouchers</button>
+        <button class="tab-btn" type="button" data-tab="history">History</button>
+    </div>
+    
+    <main class="rewards-container" id="rewardsContainer">
+        <div class="loading-text">Loading...</div>
+    </main>
+
+    <div class="bottom-nav">
+        <a href="homecustomer.html" class="nav-item">
+            <svg class="nav-svg" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+            <span>Home</span>
+        </a>
+        <a href="myorder.html" class="nav-item">
+            <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path><path d="M3 6h18"></path><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+            <span>My Order</span>
+        </a>
+        <a href="wallet.html" class="nav-item">
+            <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h14v4M4 6v12a2 2 0 0 0 2 2h14v-4M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4h-4z"/></svg>
+            <span>Wallet</span>
+        </a>
+        <a href="profilecustomer.html" class="nav-item active">
+            <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span>Profile</span>
+        </a>
+    </div>
+
+    <script src="js/rewards.js"></script>
+</body>
+</html>

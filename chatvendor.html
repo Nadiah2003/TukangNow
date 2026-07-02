@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat - TukangNow</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/chatvendor.css">
+</head>
+<body>
+    <div class="chat-header">
+        <button class="back-btn-small" id="backToTracking" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+        </button>
+        <div class="header-vendor-info">
+            <span id="chatPartnerName">Loading...</span>
+            <small id="chatRoleText">Please wait...</small>
+        </div>
+    </div>
+
+    <div class="chat-box" id="chatBox">
+        <div class="empty-chat">Loading messages...</div>
+    </div>
+
+    <div id="actionMenu" class="action-menu" style="display: none;">
+        <button id="editMenuBtn" type="button">✏️ Edit Message</button>
+        <button id="deleteMenuBtn" type="button">🗑️ Delete Message</button>
+        <button id="cancelMenuBtn" type="button">❌ Cancel</button>
+    </div>
+
+    <div id="messageModal" class="modal-overlay" style="display: none;">
+        <div class="modal-card">
+            <div id="modalIcon" class="modal-icon">✕</div>
+            <h2 id="modalTitle">Failed!</h2>
+            <p id="modalMessage">Something went wrong.</p>
+            <button id="modalContinueBtn" class="modal-btn" type="button">Continue</button>
+        </div>
+    </div>
+
+    <div class="chat-footer">
+        <input type="text" id="messageInput" placeholder="Type a message..." autocomplete="off">
+        <button id="sendMsgBtn" type="button">
+            <svg viewBox="0 0 24 24">
+                <path fill="currentColor" d="M2,21L23,12L2,3V10L17,12L2,14V21Z"></path>
+            </svg>
+        </button>
+    </div>
+
+    <script src="js/chatvendor.js"></script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Sub-Service - TukangNow</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/addservice.css">
+</head>
+<body>
+
+    <header class="header">
+        <div class="header-content">
+            <img src="image/logotukang.png" alt="Logo" class="logo-img">
+            <div class="header-text">
+                <h1>Tukang<span class="text-now">Now</span></h1>
+                <p>Manage your sub-services</p>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="card">
+            <h3>My Service</h3>
+            <p class="category-label">Main Category: <strong id="mainCatDisplay">....</strong></p>
+            
+            <form id="serviceForm">
+                <div id="inputContainer">
+                    <div class="input-group">
+                        <span class="icon">🛠️</span>
+                        <input type="text" name="subservice" placeholder="Service Name" required>
+                        <button type="button" class="btn-add" id="addInputBtn">ADD</button>
+                    </div>
+                </div>
+                
+                <div class="action-section">
+                    <button type="submit" class="btn-submit">SUBMIT</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <div id="statusModal" class="modal-overlay">
+        <div class="modal-content">
+            <div id="modalIcon" class="modal-icon">
+                <span id="iconSymbol">×</span>
+            </div>
+            <h2 id="modalTitle">Failed!</h2>
+            <p id="modalMessage">An error occurred.</p>
+            <button type="button" class="btn-modal-continue" id="modalContinueBtn">Continue</button>
+        </div>
+    </div>
+
+    <script src="js/addservice.js"></script>
+</body>
+</html>

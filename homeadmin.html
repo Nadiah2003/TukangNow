@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - TukangNow</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/homeadmin.css">
+</head>
+<body>
+
+    <div class="nav-header">
+        <div class="header-left">
+            <img src="image/logotukang.png" alt="Logo" class="mini-logo">
+            <h2>TUKANG<span>NOW</span></h2>
+        </div>
+
+        <div class="header-right">
+            <button id="notificationBtn" class="notification-btn" type="button" aria-label="Open notifications">
+                <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                </svg>
+                <span id="notificationBadge" class="notification-badge">0</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="user-greeting">
+            <div class="avatar-circle">
+                <img src="image/profile.png" id="adminProfileImg" alt="Admin Profile">
+            </div>
+            <h3>Welcome, <span id="adminName">Admin</span>!</h3>
+        </div>
+
+        <div class="stats-container">
+            <div class="stat-box blue">
+                <p>New Applications</p>
+                <h2 id="newAppCount">0</h2>
+                <span>awaiting approval</span>
+            </div>
+            <div class="stat-box light-blue">
+                <p>Vendor Active</p>
+                <h2 id="activeVendorCount">0</h2>
+            </div>
+            <div class="stat-box light-blue">
+                <p>New Report</p>
+                <h2 id="newReportCount">0</h2>
+                <span>needs review</span>
+            </div>
+        </div>
+
+        <h4 class="section-title">Vendor Information</h4>
+
+        <div class="table-container">
+            <div class="search-filter">
+                <div class="search-bar">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" id="vendorSearch" placeholder="Search vendor...">
+                </div>
+
+                <div class="filter-wrapper">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                    </svg>
+                    <select id="filterSelect">
+                        <option value="default">Sort By</option>
+                        <option value="az">Name (A-Z)</option>
+                        <option value="za">Name (Z-A)</option>
+                        <option value="rating">Highest Rating</option>
+                        <option value="jobs">Most Jobs</option>
+                        <option value="newest">Newest Added</option>
+                    </select>
+                </div>
+            </div>
+
+            <table class="vendor-table">
+                <thead>
+                    <tr>
+                        <th>Vendor Name</th>
+                        <th>License</th>
+                        <th>Performance</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="vendorTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <a href="homeadmin.html" class="nav-item active">
+            <svg class="nav-svg" viewBox="0 0 24 24">
+                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"></path>
+            </svg>
+            <span>Home</span>
+        </a>
+
+        <a href="newapplication.html" class="nav-item">
+            <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+            <span>New Application</span>
+        </a>
+
+        <a href="report.html" class="nav-item">
+            <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <span>Report</span>
+        </a>
+
+        <a href="profileadmin.html" class="nav-item">
+            <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <span>My Profile</span>
+        </a>
+    </div>
+
+    <div id="notificationModal" class="modal-overlay">
+        <div class="notification-card">
+            <div class="notification-header">
+                <div>
+                    <h2>Notifications</h2>
+                    <p>Latest system alerts for admin</p>
+                </div>
+                <button id="closeNotificationBtn" class="close-notification-btn" type="button">×</button>
+            </div>
+
+            <div id="notificationList" class="notification-list">
+                <div class="notification-empty">Loading notifications...</div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="customModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-icon error">
+                <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </div>
+            <h2 id="modalTitle">Failed!</h2>
+            <p id="modalMessage">Something went wrong.</p>
+            <button class="modal-btn" id="modalCloseBtn">Continue</button>
+        </div>
+    </div>
+
+    <script src="js/homeadmin.js?v=20260702"></script>
+</body>
+</html>

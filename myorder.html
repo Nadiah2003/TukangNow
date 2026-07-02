@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders - TukangNow</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/myorder.css">
+</head>
+<body>
+    <div class="top-bar">
+        <button onclick="goHome()" class="back-btn">←</button>
+        <span>My Order</span>
+    </div>
+
+    <div class="filter-section">
+        <select id="filterStatus" onchange="fetchOrders()">
+            <option value="">All Status</option>
+            <option value="Pending">Pending</option>
+            <option value="Emergency">Emergency</option>
+            <option value="Accepted">Accepted</option>
+            <option value="On the way">On the way</option>
+            <option value="Arrived">Arrived</option>
+            <option value="Started">Started</option>
+            <option value="Second Payment">Second Payment</option>
+            <option value="Completed">Completed</option>
+            <option value="Rated">Rated</option>
+            <option value="Reject">Reject</option>
+            <option value="Payment Failed">Payment Failed</option>
+            <option value="Cancelled">Cancelled</option>
+        </select>
+
+        <select id="filterService" onchange="fetchOrders()">
+            <option value="">All Services</option>
+            <option value="Plumbing">Plumbing</option>
+            <option value="Electrical">Electrical</option>
+            <option value="Lawn">Lawn</option>
+            <option value="Aircond">Aircond</option>
+        </select>
+
+        <input type="date" id="filterDate" onchange="fetchOrders()">
+    </div>
+    
+    <main id="orderList" class="order-container">
+        <div class="loading">Loading your orders...</div>
+    </main>
+
+    <div id="adminChatWidget" class="chat-widget" style="display: none;">
+        <div class="chat-header">
+            <span id="chatTitle">Admin Support Chat</span>
+            <button class="btn-close-chat" id="closeChatBtn" onclick="manualCloseChat()">✖</button>
+        </div>
+        <div class="chat-messages" id="chatMessages"></div>
+        <div class="chat-footer">
+            <input type="text" id="chatInput" placeholder="Type a message..." onkeypress="handleChatKeyPress(event)">
+            <button onclick="sendChatMessage()">Send</button>
+        </div>
+    </div>
+    
+    <div class="bottom-nav">
+        <a href="homecustomer.html" class="nav-item">
+            <svg class="nav-svg" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+            <span>Home</span>
+        </a>
+        <a href="myorder.html" class="nav-item active">
+            <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path><path d="M3 6h18"></path><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+            <span>My Order</span>
+        </a>
+        <a href="wallet.html" class="nav-item">
+            <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"></path><path d="M4 6v12c0 1.1.9 2 2 2h14v-4"></path><path d="M18 12a2 2 0 0 0-2-2c0 1.1.9 2 2 2h4v-4h-4z"></path></svg>
+            <span>Wallet</span>
+        </a>
+        <a href="profilecustomer.html" class="nav-item">
+            <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            <span>Profile</span>
+        </a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="js/myorder.js"></script>
+</body>
+</html>

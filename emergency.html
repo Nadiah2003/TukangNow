@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergency - TukangNow</title>
+    <link rel="stylesheet" href="css/emergency.css">
+</head>
+<body>
+    <div class="top-bar">
+        <button id="btnBack" class="back-btn" type="button">←</button>
+        <span>Emergency Broadcast</span>
+    </div>
+
+    <main class="booking-container">
+        <div class="emergency-header">
+            <div class="emergency-badge">URGENT</div>
+            <h2>Broadcast SOS</h2>
+            <p>Your request will be sent to all nearby vendors.</p>
+        </div>
+
+        <div class="info-card">
+            <p><strong>Customer:</strong> <span id="custName">Loading...</span></p>
+            <p><strong>Email:</strong> <span id="custEmail">Loading...</span></p>
+            <p><strong>Address:</strong> <span id="custAddress">Loading...</span></p>
+            <p><strong>Service:</strong> <span id="serviceStatic">Emergency</span></p>
+        </div>
+
+        <form id="emergencyForm">
+            <div class="form-group">
+                <label for="serviceCategory">Service Category</label>
+                <select id="serviceCategory" required>
+                    <option value="Plumbing">Plumbing</option>
+                    <option value="Electrical">Electrical</option>
+                    <option value="Aircond">Aircond</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="problemDesc">Describe Problem</label>
+                <textarea id="problemDesc" placeholder="Describe the emergency here..." required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="emergencyImages">Upload Photo Evidence <span class="optional-text">(Optional, max 3)</span></label>
+                <input type="file" id="emergencyImages" accept="image/*" multiple>
+                <p class="upload-note">You can upload up to 3 images to help vendors understand the problem faster.</p>
+                <div id="imagePreviewList" class="image-preview-list"></div>
+            </div>
+
+            <div class="summary-box">
+                <h3>Fixed SOS Deposit: RM 50.00</h3>
+                <p>This deposit covers the emergency broadcast only. The service fee will be determined after inspection.</p>
+            </div>
+
+            <button type="button" class="btn-broadcast" id="btnBroadcast">BROADCAST NOW</button>
+        </form>
+    </main>
+
+    <div id="statusModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div id="modalIcon" class="modal-icon">✕</div>
+            <h2 id="modalTitle">Status</h2>
+            <p id="modalMessage">Message body goes here.</p>
+            <div id="modalActions" class="modal-actions"></div>
+        </div>
+    </div>
+
+    <script src="js/emergency.js"></script>
+</body>
+</html>

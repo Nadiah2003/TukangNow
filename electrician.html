@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TukangNow - List Electrician</title>
+    <link rel="stylesheet" href="css/vendor-list.css">
+</head>
+<body>
+
+    <div class="top-bar">
+        <button onclick="history.back()" class="back-btn">←</button>
+        <span>List Electrician</span>
+    </div>
+
+    <div class="filter-bar">
+        <div class="filter-group">
+            <label for="filterRadius">Radius</label>
+            <select id="filterRadius" onchange="applyFilters()">
+                <option value="5">Within 5 km</option>
+                <option value="10">Within 10 km</option>
+                <option value="20">Within 20 km</option>
+                <option value="30">Within 30 km</option>
+                <option value="50" selected>Within 50 km</option>
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label for="filterRating">Min Rating</label>
+            <select id="filterRating" onchange="applyFilters()">
+                <option value="0">All Ratings</option>
+                <option value="4.5">⭐ 4.5 & Above</option>
+                <option value="4.0">⭐ 4.0 & Above</option>
+                <option value="3.0">⭐ 3.0 & Above</option>
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label for="filterPrice">Max Deposit (RM)</label>
+            <input type="number" id="filterPrice" placeholder="e.g. 50" oninput="applyFilters()">
+        </div>
+
+        <div class="filter-group">
+            <label for="sortBy">Sort By</label>
+            <select id="sortBy" onchange="applyFilters()">
+                <option value="distance">Nearest Distance</option>
+                <option value="rating">Highest Rating</option>
+                <option value="price_asc">Deposit: Low to High</option>
+                <option value="price_desc">Deposit: High to Low</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="info-note">
+        <span class="info-icon">ℹ️</span>
+        <div class="info-text">
+            <strong>Deposit Range Pricing:</strong> The price stated below is a booking deposit required to secure the expert. Final estimated service costs will be provided during the booking process based on your specific requirements.
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="vendorGrid" class="grid-container" data-category="electrical"></div>
+    </div>
+    
+    <div id="statusModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div id="modalIcon" class="modal-icon">✕</div>
+            <h2 id="modalTitle">Status</h2>
+            <p id="modalMessage">Message goes here.</p>
+            <button class="btn-continue" onclick="closeModal()">Continue</button>
+        </div>
+    </div>
+
+    <script src="js/vendor-list.js"></script>
+</body>
+</html>

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - TukangNow</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/homecustomer.css">
+</head>
+<body>
+
+    <header class="top-nav">
+        <div class="logo-section">
+            <img src="image/logotukang.png" alt="Logo" class="mini-logo">
+            <h2>TUKANG<span class="text-now">NOW</span></h2>
+        </div>
+        <div class="header-right">
+            <button class="notification-btn-wrapper" id="notificationBellBtn" type="button" onclick="openNotificationModal()">
+                <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                </svg>
+                <span id="notifCountBadge" class="notification-badge hidden">0</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <section class="main-search-section">
+            <div class="search-box">
+                <input type="text" placeholder="What service do you need today?" id="searchInput">
+                <button type="button" class="search-btn">Search</button>
+            </div>
+
+            <div class="user-info-body">
+                <div class="text-greet">
+                    <small>Welcome,</small>
+                    <h3 id="customerName">Guest</h3>
+                </div>
+                <div class="profile-frame">
+                    <img id="customerImg" src="image/profile.png" alt="User" onerror="this.src='image/profile.png'">
+                </div>
+            </div>
+        </section>
+
+        <nav class="services-grid">
+            <a href="electrician.html" class="service-item-link">
+                <div class="service-icon-box"><img src="image/electrician.png" alt="Electrician" class="service-img"></div>
+                <div class="service-label">Electrician</div>
+            </a>
+            <a href="plumber.html" class="service-item-link">
+                <div class="service-icon-box"><img src="image/plumber.png" alt="Plumber" class="service-img"></div>
+                <div class="service-label">Plumber</div>
+            </a>
+            <a href="lawn.html" class="service-item-link">
+                <div class="service-icon-box"><img src="image/lawn.png" alt="Lawn" class="service-img"></div>
+                <div class="service-label">Lawn</div>
+            </a>
+            <a href="emergency.html" class="service-item-link">
+                <div class="service-icon-box emergency-box"><img src="image/alert.png" alt="Emergency" class="service-img"></div>
+                <div class="service-label">Emergency</div>
+            </a>
+        </nav>
+
+        <section class="wallet-rewards-container">
+            <a href="wallet.html" class="info-card-link">
+                <div class="info-card">
+                    <div class="info-text">
+                        <div class="card-label">View Balance</div>
+                        <div class="card-value" id="walletBalanceLabel">RM 0.00</div>
+                    </div>
+                    <svg class="wallet-icon" viewBox="0 0 24 24">
+                        <path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8z"></path>
+                    </svg>
+                </div>
+            </a>
+            <a href="rewards.html" class="info-card-link">
+                <div class="info-card">
+                    <div class="info-text">
+                        <div class="card-label">Rewards</div>
+                        <div class="card-value">0 pts</div>
+                    </div>
+                    <svg class="rewards-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="9"></circle>
+                        <path d="M12 6v12M14.5 9.5a2.5 2.5 0 0 0-2.5-2.5H11a2.5 2.5 0 0 0 0 5h2a2.5 2.5 0 0 1 0 5h-1.5A2.5 2.5 0 0 1 9.5 14.5"></path>
+                    </svg>
+                </div>
+            </a>
+        </section>
+
+        <h2 class="section-title">Events</h2>
+        <div id="eventsContainer" class="horizontal-scroll-container"></div>
+
+        <div class="section-filter-header">
+            <h2 class="section-title filter-title">Electricians</h2>
+            <div class="filter-controls">
+                <select id="electricianRange" class="filter-select">
+                    <option value="5">Within 5 KM</option>
+                    <option value="10">Within 10 KM</option>
+                    <option value="20">Within 20 KM</option>
+                    <option value="30">Within 30 KM</option>
+                    <option value="50" selected>Within 50 KM</option>
+                </select>
+                <select id="electricianSort" class="filter-select">
+                    <option value="asc" selected>Distance Increased</option>
+                    <option value="desc">Distance Decreased</option>
+                </select>
+            </div>
+        </div>
+        <div id="electricianContainer" class="horizontal-scroll-container"></div>
+
+        <div class="section-filter-header">
+            <h2 class="section-title filter-title">Plumbers</h2>
+            <div class="filter-controls">
+                <select id="plumberRange" class="filter-select">
+                    <option value="5">Within 5 KM</option>
+                    <option value="10">Within 10 KM</option>
+                    <option value="20">Within 20 KM</option>
+                    <option value="30">Within 30 KM</option>
+                    <option value="50" selected>Within 50 KM</option>
+                </select>
+                <select id="plumberSort" class="filter-select">
+                    <option value="asc" selected>Distance Increased</option>
+                    <option value="desc">Distance Decreased</option>
+                </select>
+            </div>
+        </div>
+        <div id="plumberContainer" class="horizontal-scroll-container"></div>
+
+        <div class="section-filter-header">
+            <h2 class="section-title filter-title">Lawn</h2>
+            <div class="filter-controls">
+                <select id="lawnRange" class="filter-select">
+                    <option value="5">Within 5 KM</option>
+                    <option value="10">Within 10 KM</option>
+                    <option value="20">Within 20 KM</option>
+                    <option value="30">Within 30 KM</option>
+                    <option value="50" selected>Within 50 KM</option>
+                </select>
+                <select id="lawnSort" class="filter-select">
+                    <option value="asc" selected>Distance Increased</option>
+                    <option value="desc">Distance Decreased</option>
+                </select>
+            </div>
+        </div>
+        <div id="lawnContainer" class="horizontal-scroll-container"></div>
+    </main>
+
+    <div id="eventModal" class="event-modal-overlay hidden">
+        <div class="event-modal-wrapper">
+            <button type="button" class="event-modal-close" onclick="closeEventModal()">&times;</button>
+            <div class="event-modal-banner">
+                <img id="modalEventImg" src="" alt="Event Banner">
+                <span id="modalEventBadge" class="modal-discount-badge"></span>
+            </div>
+            <div class="event-modal-body">
+                <h3 id="modalEventTitle">Event Title</h3>
+                <p id="modalEventDuration" class="event-duration-text">Validity: -</p>
+                <p id="modalEventDesc">Event Description goes here.</p>
+
+                <div id="modalVoucherSection" class="modal-voucher-box">
+                    <span class="voucher-tag">VOUCHER CODE</span>
+                    <div class="voucher-row">
+                        <span id="modalVoucherCode" class="voucher-code-text">-</span>
+                        <button type="button" id="copyVoucherBtn" class="voucher-copy-btn" onclick="copyVoucherCode()">Copy</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="notificationModal" class="event-modal-overlay hidden">
+        <div class="notif-modal-wrapper">
+            <div class="notif-header">
+                <div>
+                    <h3>Notifications</h3>
+                    <p>Booking, report, wallet, second payment and chat updates</p>
+                </div>
+                <button type="button" class="notif-close-btn" onclick="closeNotificationModal()">&times;</button>
+            </div>
+            <div id="notifListContainer" class="notif-list-body">
+                <div class="notif-empty-state">Loading activities...</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="statusModal" class="modal-alert-box hidden">
+        <div class="modal-alert-content">
+            <h3 id="modalTitle">Alert</h3>
+            <p id="modalMessage">Message content</p>
+            <button type="button" onclick="closeModal()">OK</button>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <a href="homecustomer.html" class="nav-item active">
+            <svg class="nav-svg" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+            <span>Home</span>
+        </a>
+        <a href="myorder.html" class="nav-item">
+            <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path><path d="M3 6h18"></path><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+            <span>My Order</span>
+        </a>
+        <a href="wallet.html" class="nav-item">
+            <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"></path><path d="M4 6v12c0 1.1.9 2 2 2h14v-4"></path><path d="M18 12a2 2 0 0 0-2-2c0 1.1.9 2 2 2h4v-4h-4z"></path></svg>
+            <span>Wallet</span>
+        </a>
+        <a href="profilecustomer.html" class="nav-item">
+            <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            <span>Profile</span>
+        </a>
+    </div>
+
+    <script src="js/homecustomer.js?v=20260702"></script>
+</body>
+</html>

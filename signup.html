@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - TukangNow</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%231848a0%22><path d=%22M12 2L2 22h20L12 2zm0 3.99L19.53 19H4.47L12 5.99z%22/></svg>">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/signup.css">
+</head>
+<body>
+
+    <div class="header">
+        <div class="header-content">
+            <img src="image/logotukang.png" alt="Logo" class="logo-img">
+            <div class="header-text">
+                <h1 class="brand-text">
+                    <span class="text-tukang">TUKANG</span><span class="text-now">NOW</span>
+                </h1>
+                <p>Fast & Trusted Home Services</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="signup-container">
+        <div class="signup-card">
+            <h2>Create your account</h2>
+            <p class="subtitle">Signup to book trusted home services easily</p>
+             
+            <div class="card-scrollable-content">
+                <form id="signupForm" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+                    <div style="position:absolute; left:-9999px; top:-9999px; width:1px; height:1px; overflow:hidden;">
+                        <input type="text" name="fake_username" autocomplete="username" tabindex="-1">
+                        <input type="password" name="fake_password" autocomplete="current-password" tabindex="-1">
+                    </div>
+
+                    <div class="input-group">
+                        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                        <input type="text" id="fullname" name="tn_fullname_field" placeholder="Full Name" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false" readonly onfocus="this.removeAttribute('readonly');" required>
+                    </div>
+
+                    <div class="input-group">
+                        <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                        <input type="email" id="email" name="tn_email_field" placeholder="Email" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false" readonly onfocus="this.removeAttribute('readonly');" required>
+                    </div>
+
+                    <div class="phone-input-container">
+                        <div class="country-code-box">
+                            <img src="icon/malaysia.png" class="flag-icon" alt="Flag">
+                            <span class="country-code-text">+60</span>
+                        </div>
+                        <input type="text" id="phone" name="tn_phone_field" class="phone-number-box" placeholder="12-345 6789" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false" readonly onfocus="this.removeAttribute('readonly');" required>
+                    </div>
+                    <div id="phone-warn" class="phone-error-text">The phone number is too short! Please check again!</div>
+
+                    <div class="input-group">
+                        <input type="password" id="password" name="tn_password_field" placeholder="Password" style="padding-left: 15px;" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false" readonly onfocus="this.removeAttribute('readonly');" required>
+                        <svg class="eye-icon" id="toggleSignupPass" viewBox="0 0 24 24">
+                            <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                        </svg>
+                    </div>
+
+                    <div id="password-requirements" class="requirements-container">
+                        <div id="char-length" class="requirement invalid">✖ Minimum 6 characters</div>
+                        <div id="char-upper" class="requirement invalid">✖ One capital letter (A-Z)</div>
+                        <div id="char-number" class="requirement invalid">✖ One number (0-9)</div>
+                        <div id="char-special" class="requirement invalid">✖ One special character (@#$%^&*)</div>
+                    </div>
+
+                    <div class="address-fields-title">Service Address Location</div>
+                    
+                    <div class="input-group">
+                        <input type="text" id="address" name="tn_address_field" placeholder="Full Street Address" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false" readonly onfocus="this.removeAttribute('readonly');" required>
+                    </div>
+
+                    <div class="address-grid">
+                        <input type="text" id="postcode" name="tn_postcode_field" placeholder="Postcode" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false" readonly onfocus="this.removeAttribute('readonly');" required>
+                        <input type="text" id="city" name="tn_city_field" placeholder="City" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false" readonly onfocus="this.removeAttribute('readonly');" required>
+                    </div>
+
+                    <div class="input-group" style="margin-top: 10px;">
+                        <input type="text" id="state" name="tn_state_field" placeholder="State" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false" readonly onfocus="this.removeAttribute('readonly');" required>
+                    </div>
+
+                    <input type="hidden" id="latitude" name="tn_latitude_field" autocomplete="off">
+                    <input type="hidden" id="longitude" name="tn_longitude_field" autocomplete="off">
+
+                    <div class="terms-container">
+                        <input type="checkbox" id="agreeCheck" autocomplete="off" disabled required>
+                        <label>I agree to the <span class="terms-link" id="openTerms" style="cursor:pointer; text-decoration:underline; color:#1848a0;">Terms of Service & Privacy Policy</span></label>
+                    </div>
+
+                    <button type="submit" class="btn-signup" id="submitBtn">Signup</button>
+                </form>
+
+                <div class="divider">OR</div>
+                <a href="signup_vendor.html" class="btn-vendor">Signup as Service Providers</a>
+
+                <div class="login-link">
+                    Already have an account? <a href="login.html">Login</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="termsModal" class="modal">
+        <div class="modal-content">
+            <h3>Terms of Service & Privacy Policy</h3>
+            <div class="modal-body" style="max-height: 300px; overflow-y: auto; padding: 10px; border: 1px solid #eee; margin-bottom: 15px;">
+                <ul class="terms-list">
+                    <li>
+                        <strong>🛠️ Quality of Work (Kualiti Kerja)</strong><br>
+                        Please check the work before the worker leaves your house. 
+                        <span class="warning-text">Sila periksa hasil kerja sebelum tukang balik dari rumah anda.</span>
+                    </li>
+                    <li>
+                        <strong>💳 How to Pay (Cara Bayar)</strong><br>
+                        Pay the deposit to start, and the balance only after the job is finished.
+                        <span class="success-text">Bayar deposit untuk mula, dan baki hanya dibayar selepas kerja siap.</span>
+                    </li>
+                    <li>
+                        <strong>⚠️ Cancellation (Batal Janji)</strong><br>
+                        If you cancel within 24 hours of the appointment, your deposit will not be returned.
+                        <span class="warning-text">Jika anda batal dalam tempoh 24 jam sebelum temujanji, deposit tidak akan dipulangkan (hangus).</span>
+                    </li>
+                    <li>
+                        <strong>✅ Vendor No-Show (Tukang Tak Datang)</strong><br>
+                        If the worker fails to arrive, you will get your money back in full.
+                        <span class="success-text">Jika tukang tidak datang pada waktu dijanjikan, duit anda akan dipulangkan sepenuhnya.</span>
+                    </li>
+                    <li>
+                        <strong>🔒 Your Address (Alamat Anda)</strong><br>
+                        The worker will only see your address after the deposit is paid.
+                        <span class="muted-text">Tukang hanya akan nampak alamat anda selepas deposit dibayar.</span>
+                    </li>
+                </ul>
+            </div>
+            <button id="closeModal" disabled style="opacity: 0.5; cursor: not-allowed;">Sila Skrol Ke Bawah Semuanya</button>
+        </div>
+    </div>
+
+    <div id="toastNotification" class="toast-card">
+        <div class="toast-left">
+            <div class="toast-spinner"></div>
+            <div id="toastIconCircle" class="toast-icon-circle">
+                <span id="toastIcon"></span>
+            </div>
+        </div>
+        <div class="toast-content-wrapper">
+            <h4 id="toastTitle">Notification</h4>
+            <p id="toastMessage">Please wait...</p>
+        </div>
+    </div>
+
+    <script src="js/signup.js"></script>
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - TukangNow</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+
+    <div class="header">
+        <div class="header-content">
+            <img src="image/logotukang.png" alt="Logo" class="logo-img">
+            <div class="header-text">
+                <h1>TUKANG<span class="text-now">NOW</span></h1>
+                <p>Fast & Trusted Home Services</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="login-container">
+        <div class="login-card">
+            <div class="card-scrollable-content">
+                <h2 class="welcome-title">Welcome Back 👋</h2>
+                <p class="welcome-text">Login to your TukangNow account</p>
+                <div id="error-box" class="error-msg"></div>
+
+                <form id="loginForm" autocomplete="on">
+                    <div class="input-group">
+                        <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                        <input type="text" id="email" name="username" placeholder="Email or Phone Number" autocomplete="username" required>
+                    </div>
+                
+                    <div class="input-group">
+                        <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                        <input type="password" id="password" name="password" placeholder="Password" autocomplete="current-password" required>
+                        <svg class="eye-icon" viewBox="0 0 24 24">
+                            <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                        </svg>
+                    </div>
+
+                    <label class="remember-row">
+                        <input type="checkbox" id="rememberLogin" name="rememberLogin">
+                        <span>Remember me</span>
+                    </label>
+                
+                    <button type="submit" class="login-btn">Login</button>
+                </form>
+
+                <p class="signup-text">Don't have an account? <a href="signup.html">SignUp</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="loginStatusModal" class="modal" aria-hidden="true">
+        <div class="status-card">
+            <div id="loginStatusIconCircle" class="status-icon-circle failed">
+                <span id="loginStatusIcon">×</span>
+            </div>
+            <h2 id="loginStatusTitle">Failed!</h2>
+            <p id="loginStatusMessage">Invalid Email or Password</p>
+            <button id="loginStatusBtn" class="status-btn" type="button">Continue</button>
+        </div>
+    </div>
+    
+    <script src="js/login.js"></script>
+</body>
+</html>

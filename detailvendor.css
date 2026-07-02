@@ -1,0 +1,346 @@
+:root {
+    --primary-blue: #1848a0;
+    --light-bg: #e1ecf7;
+    --text-dark: #001f65;
+    --gradient-btn: linear-gradient(180deg, #001f65 0%, #6895fd 100%);
+    --white: #ffffff;
+    --approve-green: #a2f07d;
+    --reject-red: #f08d8d;
+    --error-red: #e53935;
+    --success-green: #4caf50;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 16px;
+}
+
+body { 
+    margin: 0; 
+    font-family: 'Outfit', sans-serif; 
+    background-color: var(--light-bg); 
+    padding-bottom: 50px; 
+    color: var(--text-dark);
+}
+
+.top-bar {
+    background-color: var(--primary-blue);
+    padding: 15px 20px 25px 20px;
+    min-height: 140px;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    position: relative;
+    width: 100%;
+    gap: 12px;
+    font-weight: 800;
+    margin-bottom: 20px;
+}
+
+.top-bar span {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    line-height: 1.1;
+    color: white;
+    text-align: center;
+}
+
+.back-btn {
+    position: absolute;
+    left: 20px;
+    top: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 38px;
+    height: 38px;
+    box-shadow: none;
+    cursor: pointer;
+    font-size: 22px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.main-content { 
+    padding: 20px; 
+    max-width: 600px; 
+    margin: 0 auto; 
+}
+
+.detail-card {
+    background: var(--white); 
+    border-radius: 20px; 
+    padding: 20px; 
+    margin-bottom: 20px;
+    border: 1px solid #c0d1eb; 
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+#serviceSection {
+    display: none;
+}
+
+h3 { 
+    color: var(--text-dark); 
+    border-bottom: 2px solid var(--primary-blue); 
+    display: inline-block; 
+    margin-bottom: 20px; 
+}
+
+.form-note {
+    margin: 0 0 10px 0;
+    color: var(--text-dark);
+    font-size: 0.9rem;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.profile-section { 
+    display: flex; 
+    gap: 20px; 
+    align-items: flex-start; 
+    margin-bottom: 25px; 
+}
+
+.profile-img-box { 
+    width: 150px; 
+    height: 150px; 
+    background: #e1f0ff; 
+    border-radius: 15px; 
+    overflow: hidden; 
+}
+
+.profile-img-box img { 
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover; 
+}
+
+.vendor-info p { 
+    margin: 8px 0; 
+    color: #333; 
+}
+
+.doc-link { 
+    display: block; 
+    margin-top: 5px; 
+    color: var(--primary-blue); 
+    font-weight: 600; 
+    text-decoration: none; 
+}
+
+.action-buttons { 
+    display: flex; 
+    gap: 15px; 
+}
+
+.btn-approve, .btn-reject {
+    flex: 1; 
+    padding: 12px; 
+    border: none; 
+    border-radius: 25px; 
+    font-weight: bold; 
+    cursor: pointer;
+}
+
+.btn-approve { 
+    background-color: var(--approve-green); 
+    color: #2e7d32; 
+}
+
+.btn-reject { 
+    background-color: var(--reject-red); 
+    color: #d32f2f; 
+}
+
+.btn-submit, .btn-continue, .btn-add { 
+    background: var(--gradient-btn); 
+    color: var(--white); 
+    border: none; 
+    font-weight: bold; 
+    cursor: pointer; 
+}
+
+.btn-add { 
+    padding: 12px 20px; 
+    border-radius: 15px; 
+}
+
+.btn-submit { 
+    width: 100%; 
+    padding: 15px; 
+    border-radius: 30px; 
+    margin-top: 15px; 
+}
+
+.btn-continue { 
+    padding: 15px 0; 
+    width: 100%; 
+    border-radius: 30px; 
+    font-size: 1rem; 
+}
+
+.service-row { 
+    display: flex; 
+    gap: 10px; 
+    margin-bottom: 18px; 
+    align-items: center; 
+}
+
+.input-group {
+    flex: 1; 
+    display: flex; 
+    align-items: center; 
+    border: 2px solid var(--primary-blue); 
+    border-radius: 15px; 
+    padding: 10px; 
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.service-select, .input-group input { 
+    border: none; 
+    outline: none; 
+    width: 100%; 
+    background: transparent; 
+    font-family: 'Outfit'; 
+    color: var(--text-dark); 
+}
+
+.btn-remove { 
+    background: #ff4d4d; 
+    color: var(--white); 
+    border: none; 
+    border-radius: 8px; 
+    cursor: pointer; 
+    padding: 10px 15px; 
+    font-weight: bold; 
+}
+
+.modal-overlay {
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%;
+    background: rgba(0,0,0,0.5); 
+    display: none; 
+    align-items: center;
+    justify-content: center; 
+    z-index: 2000;
+}
+
+.modal-content {
+    background: var(--white); 
+    padding: 40px; 
+    border-radius: 30px;
+    width: 320px; 
+    text-align: center; 
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.modal-icon {
+    width: 80px; 
+    height: 80px; 
+    border-radius: 50%; 
+    display: flex;
+    align-items: center; 
+    justify-content: center; 
+    font-size: 40px;
+    margin: 0 auto 20px; 
+    color: var(--white);
+}
+
+.modal-icon.error { 
+    background: var(--error-red); 
+}
+
+.modal-icon.success { 
+    background: var(--success-green); 
+}
+
+@media (min-width: 768px) {
+    .top-bar {
+        padding: 25px 20px 35px 20px;
+        min-height: 160px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    html {
+        font-size: 14px;
+    }
+
+    .top-bar {
+        padding: 15px 20px 25px 20px;
+        min-height: 140px;
+    }
+
+    .top-bar span {
+        font-size: 1.6rem;
+    }
+
+    .back-btn {
+        left: 15px;
+        top: 15px;
+    }
+
+    .main-content { 
+        padding: 15px; 
+    }
+    
+    .profile-section { 
+        flex-direction: column; 
+        align-items: center; 
+        text-align: center; 
+    }
+    
+    .profile-img-box { 
+        width: 120px; 
+        height: 120px; 
+    }
+    
+    .action-buttons { 
+        flex-direction: column; 
+    }
+    
+    .btn-approve, .btn-reject { 
+        width: 100%; 
+    }
+
+    .service-row { 
+        flex-direction: column; 
+        align-items: stretch; 
+    }
+    
+    .btn-add, .btn-remove { 
+        width: 100%; 
+    }
+    
+    h3 { 
+        width: 100%; 
+        text-align: center; 
+        font-size: 1.1rem; 
+    }
+
+    .form-note {
+        font-size: 0.85rem;
+        text-align: left;
+    }
+    
+    .modal-content { 
+        width: 85%; 
+        padding: 30px 20px; 
+    }
+}

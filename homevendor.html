@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home Dashboard - TukangNow</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="css/homevendor.css">
+</head>
+<body>
+
+    <header class="top-nav">
+        <div class="logo-section">
+            <img src="image/logotukang.png" alt="Logo" class="mini-logo" />
+            <h2 class="brand-name">TUKANG<span class="text-now">NOW</span></h2>
+        </div>
+        <div class="header-right">
+            <button class="bell-btn" id="bellIconBtn" type="button" aria-label="Open notifications">
+                <svg class="bell-svg" viewBox="0 0 24 24">
+                    <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+                </svg>
+                <span class="bell-badge" id="notiBadge">0</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="vendor-summary">
+            <div class="vendor-avatar-wrapper">
+                <img id="vendorPic" src="image/profile.png" alt="Profile" class="vendor-avatar" />
+            </div>
+            <div class="vendor-details">
+                <h3 id="vendorName">Loading...</h3>
+                <span id="accountStatus" class="status-badge status-badge--pending">Pending</span>
+                <small id="expiryInfo" class="expiry-date">No expiry date</small>
+            </div>
+        </section>
+
+        <section class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-card__label">Monthly Income</span>
+                <p class="stat-card__val" id="vendorIncome">RM 0.00</p>
+            </div>
+            <div class="stat-card">
+                <span class="stat-card__label">Job Completed</span>
+                <p class="stat-card__val" id="vendorJobsCount">0</p>
+            </div>
+        </section>
+
+        <h3 class="section-title">🚨 Emergency Requests</h3>
+        <div class="jobs-list" id="urgentJobsContainer">
+            <div class="no-jobs">No urgent emergency requests.</div>
+        </div>
+
+        <h3 class="section-title">📌 Pending Booking Requests</h3>
+        <div class="jobs-list" id="pendingJobsContainer">
+            <div class="no-jobs">No pending booking requests.</div>
+        </div>
+
+        <h3 class="section-title">💼 Booking Jobs</h3>
+        <div class="jobs-list" id="activeJobsContainer">
+            <div class="no-jobs">No active accepted jobs.</div>
+        </div>
+    </main>
+
+    <nav class="bottom-nav">
+        <a href="homevendor.html" class="nav-item active">
+            <svg class="nav-svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"></path>
+            </svg>
+            <span>Home</span>
+        </a>
+
+        <a href="job.html" class="nav-item">
+            <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+            </svg>
+            <span>My Job</span>
+        </a>
+
+        <a href="walletvendor.html" class="nav-item">
+            <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"></path>
+                <path d="M4 6v12c0 1.1.9 2 2 2h14v-4"></path>
+                <path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4h-4z"></path>
+            </svg>
+            <span>Wallet</span>
+        </a>
+
+        <a href="profilevendor.html" class="nav-item">
+            <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <span>Profile</span>
+        </a>
+    </nav>
+
+    <div id="notificationModal" class="notification-overlay">
+        <div class="notification-card">
+            <div class="notification-header">
+                <div>
+                    <h3>Notifications</h3>
+                    <p>Booking, emergency, wallet and chat updates</p>
+                </div>
+                <button id="closeNotificationBtn" class="notification-close-btn" type="button">×</button>
+            </div>
+            <div id="notificationList" class="notification-list">
+                <div class="notification-empty">Loading notifications...</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="popupModal" class="popup-overlay">
+        <div class="popup-card">
+            <div id="popupIconCircle" class="popup-icon-circle success">
+                <svg class="popup-svg-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+            </div>
+            <h3 class="popup-title" id="popupTitle">Notification</h3>
+            <p class="popup-msg" id="popupMessage">Message content goes here.</p>
+            <button class="popup-btn" id="popupCloseBtn" type="button">Continue</button>
+        </div>
+    </div>
+
+    <script src="js/homevendor.js?v=20260702"></script>
+</body>
+</html>

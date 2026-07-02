@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vendor Wallet - TukangNow</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/walletvendor.css">
+</head>
+<body>
+
+<header class="top-nav">
+    <div class="logo-section">
+        <img src="image/logotukang.png" alt="Logo" class="mini-logo" />
+        <h2>Tukang<span>Now</span></h2>
+    </div>
+</header>
+
+<main class="container">
+    <h2 class="page-title">My Wallet</h2>
+
+    <section class="wallet-summary">
+        <div class="balance-card">
+            <p class="balance-label">Available Balance</p>
+            <h1 id="walletBalance">RM 0.00</h1>
+            <p class="balance-subtitle">Paid bookings will be added into your wallet automatically.</p>
+        </div>
+
+        <div class="summary-grid">
+            <div class="summary-box">
+                <p>Total Earned</p>
+                <h3 id="totalEarned">RM 0.00</h3>
+            </div>
+
+            <div class="summary-box">
+                <p>Total Withdrawn</p>
+                <h3 id="totalWithdrawn">RM 0.00</h3>
+            </div>
+        </div>
+    </section>
+
+    <section class="withdraw-section">
+        <h3>Withdraw Money</h3>
+
+        <form id="withdrawForm" class="withdraw-form">
+            <div class="form-group">
+                <label for="withdrawAmount">Amount</label>
+                <input type="number" id="withdrawAmount" name="withdrawAmount" min="1" step="0.01" placeholder="Enter withdraw amount">
+            </div>
+
+            <button type="submit" class="withdraw-btn">Withdraw</button>
+        </form>
+    </section>
+
+    <section class="table-wrapper">
+        <div class="section-header">
+            <h3>Wallet Transactions</h3>
+        </div>
+
+        <table class="wallet-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody id="walletTableBody">
+                <tr class="empty-row">
+                    <td colspan="4">
+                        <div class="empty-icon">💳</div>
+                        <p class="empty-title">No wallet transaction</p>
+                        <p class="empty-subtitle">Your wallet transactions will appear here.</p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div id="walletCards" class="wallet-cards"></div>
+    </section>
+</main>
+
+<nav class="bottom-nav">
+    <a href="homevendor.html" class="nav-item">
+        <svg class="nav-svg" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"></path>
+        </svg>
+        <span>Home</span>
+    </a>
+
+    <a href="job.html" class="nav-item">
+        <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+        </svg>
+        <span>My Job</span>
+    </a>
+
+    <a href="walletvendor.html" class="nav-item active">
+        <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"></path>
+            <path d="M4 6v12c0 1.1.9 2 2 2h14v-4"></path>
+            <path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4h-4z"></path>
+        </svg>
+        <span>Wallet</span>
+    </a>
+
+    <a href="profilevendor.html" class="nav-item">
+        <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+        <span>Profile</span>
+    </a>
+</nav>
+
+<div class="popup-overlay" id="popupOverlay" aria-hidden="true">
+    <div class="popup-card">
+        <div class="popup-icon" id="popupIcon">
+            <span id="popupIconSymbol">✕</span>
+        </div>
+
+        <h3 class="popup-title" id="popupTitle">Failed!</h3>
+        <p class="popup-message" id="popupMessage">Something went wrong.</p>
+        <button class="popup-btn" id="popupContinueBtn" type="button">Continue</button>
+    </div>
+</div>
+
+<script src="js/walletvendor.js"></script>
+</body>
+</html>

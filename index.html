@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Service - TukangNow</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght=400;600;800&display=swap" rel="stylesheet">
+    <link class="content-hint" rel="stylesheet" href="css/searchservice.css">
+</head>
+<body>
+
+    <div class="header">
+        <div class="header-content">
+            <img src="image/logotukang.png" alt="Logo" class="logo-img">
+            <div class="header-text">
+                <h1>TUKANG<span class="text-now">NOW</span></h1>
+                <p>Fast & Trusted Home Services</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="login-container">
+        <div class="login-card">
+            <div class="card-scrollable-content">
+                <h2 class="welcome-title">Search Service</h2>
+                <p class="subtitle">Select a category, radius distance and date to find nearby vendors.</p>
+                
+                <div class="input-group">
+                    <select id="serviceType" class="styled-select">
+                        <option value="" disabled selected>Select Service Type</option>
+                        <option value="Electrical">Electrical</option>
+                        <option value="Lawn Mower">Lawn Mower</option>
+                        <option value="Plumber">Plumber</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <select id="searchRadius" class="styled-select">
+                        <option value="" disabled>Select Max Distance</option>
+                        <option value="5">Within 5 KM</option>
+                        <option value="10" selected>Within 10 KM</option>
+                        <option value="20">Within 20 KM</option>
+                        <option value="30">Within 30 KM</option>
+                        <option value="50">Within 50 KM</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <input type="date" id="searchDate" class="styled-select">
+                </div>
+
+                <div style="margin-bottom: 10px;">
+                    <button onclick="setEmergency()" class="emergency-btn">EMERGENCY</button>
+                </div>
+
+                <button onclick="performSearch()" class="login-btn">SEARCH NOW</button>
+                
+                <div class="divider">OR</div>
+                
+                <p class="admin-note">
+                    If you are an <strong>Admin</strong> or <strong>Vendor</strong>, please click the button below. 
+                    Ignore the search service above!
+                </p>
+                
+                <a href="login.html" class="secondary-login-btn">LOGIN TO PORTAL</a>
+            </div>
+        </div>
+    </div>
+
+    <div id="statusModal" class="modal">
+        <div class="status-card" id="statusCard">
+            <div class="status-icon-circle" id="statusIconCircle">
+                <span id="statusIcon" style="font-size: 30px; color: white; font-weight: bold;"></span>
+            </div>
+            <h2 id="statusTitle">Notification</h2>
+            <div id="statusMessage">Message content here.</div>
+            <button id="statusOkBtn" class="status-btn">OK</button>
+        </div>
+    </div>
+
+    <script src="js/searchservice.js"></script>
+</body>
+</html>

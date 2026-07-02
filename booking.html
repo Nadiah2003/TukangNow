@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Service - TukangNow</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/booking.css">
+</head>
+<body>
+    <div class="top-bar">
+        <button onclick="history.back()" class="back-btn">←</button>
+        <span>Booking Vendor</span>
+    </div>
+
+    <main class="booking-container">
+        <div class="vendor-header">
+            <div class="profile-pic">
+                <img id="vendorImg" src="image/profile.png" alt="Profile">
+            </div>
+            <div class="vendor-info">
+                <h2 id="vendorName">Loading...</h2>
+                <p id="vendorRating">⭐ 5.0 (150)</p>
+            </div>
+            <div class="price-tag">
+                Booking Deposit: <span id="startPrice">RM0</span>
+            </div>
+        </div>
+
+        <form id="bookingForm">
+            <div class="form-row">
+                <select id="chooseService" name="service" required>
+                    <option value="" disabled selected>Choose service</option>
+                </select>
+                <div class="date-time-row">
+                    <input type="date" id="bookingDate" name="date" required>
+                    <select id="bookingTime" name="time" class="small-select" required>
+                        <option value="" disabled selected>Time</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="sqftSection" class="sqft-input-group">
+                <label>Estimated Area (Sq Ft):</label>
+                <input type="number" id="sqftInput" placeholder="Enter estimated sq ft (e.g. 500)">
+            </div>
+
+            <div class="customer-details">
+                <p><strong>Name :</strong> <span id="custName">Loading...</span></p>
+                <p><strong>Address :</strong> <span id="custAddress">Loading...</span></p>
+
+                <div class="input-contact-group">
+                    <p><strong>Email :</strong></p>
+                    <input type="email" id="custEmailInput" placeholder="example@mail.com" required>
+                </div>
+                <div class="input-contact-group">
+                    <p><strong>Phone :</strong></p>
+                    <input type="tel" id="custPhoneInput" placeholder="0123456789" required>
+                </div>
+
+                <p><strong>Distance :</strong> <span id="distanceText">0.0 km</span></p>
+                <p><strong>Travel Fee :</strong> RM <span id="travelFee">0.00</span> <br><small>(Covers transport & site inspection only)</small></p>
+            </div>
+
+            <div id="estimateBreakdown" class="estimate-box">
+                <h4>Estimated Average Rate (Malaysia):</h4>
+                <ul id="breakdownList"></ul>
+
+                <div class="total-estimate-row">
+                    Total Est. (Include Travel Fee): RM <span id="grandTotalEst">0.00</span>
+                </div>
+
+                <p class="disclaimer">*This Total Est. was the total that need to be expected. The item may not needed for the service. Actual price may vary based on site condition and complexity.</p>
+            </div>
+
+            <div class="cost-summary">
+                <h3>Total Deposit: RM <span id="totalDeposit">0.00</span></h3>
+            </div>
+
+            <textarea name="details" placeholder="Add information detail (e.g. brand, specific problem)"></textarea>
+
+            <div class="image-upload-section">
+                <label>Upload Images (Max 3)</label>
+                <div class="upload-container">
+                    <input type="file" id="imageInput" accept="image/*" multiple hidden>
+                    <div class="upload-box" id="uploadBox" onclick="document.getElementById('imageInput').click()">
+                        <span class="plus-icon">+</span>
+                        <p>Add Photo</p>
+                    </div>
+                    <div id="previewContainer" class="preview-container"></div>
+                </div>
+                <small id="imageCount">0 / 3 images selected</small>
+            </div>
+
+            <button type="button" class="btn-book" onclick="proceedToPayment()">Book</button>
+        </form>
+    </main>
+
+    <div id="statusModal" class="modal-overlay" aria-hidden="true">
+        <div class="modal-box">
+            <div id="modalIconCircle" class="modal-icon-circle error">
+                <span id="modalIcon">×</span>
+            </div>
+            <h2 id="modalTitle">Failed!</h2>
+            <p id="modalMessage">Please complete all selections!</p>
+            <button class="modal-btn" type="button" onclick="closeModal()">Continue</button>
+        </div>
+    </div>
+
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loader-content">
+            <div class="spinner"></div>
+            <p>Calculating distance & fee...</p>
+        </div>
+    </div>
+
+    <script src="js/booking.js"></script>
+</body>
+</html>
