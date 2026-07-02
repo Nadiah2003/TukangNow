@@ -15,15 +15,43 @@ public class VendorSearchResult {
         this.availTime = availTime;
     }
 
-    // Getter dan Setter untuk keperluan penukaran kepada JSON (Gson)
-    public String getVendorName() { return vendorName; }
-    public void setVendorName(String vendorName) { this.vendorName = vendorName; }
-    public double getDistance() { return distance; }
-    public void setDistance(double distance) { this.distance = distance; }
-    public String getSubservice() { return subservice; }
-    public void setSubservice(String subservice) { this.subservice = subservice; }
-    public String getState() { return state; }
-    public void setState(String state) { this.state = state; }
-    public String getAvailTime() { return availTime; }
-    public void setAvailTime(String availTime) { this.availTime = availTime; }
+    public String getVendorName() {
+        return vendorName;
+    }
+
+    public void setVendorName(String vendorName) {
+        this.vendorName = vendorName;
+    }
+
+    public double getDistance() {
+        return distance;
+    }
+
+    public void setDistance(double distance) {
+        this.distance = distance;
+    }
+
+    public String getSubservice() {
+        return subservice;
+    }
+
+    public void setSubservice(String subservice) {
+        this.subservice = subservice;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    public String getAvailTime() {
+        return availTime;
+    }
+
+    public void setAvailTime(String availTime) {
+        this.availTime = availTime;
+    }
 }
