@@ -3,17 +3,19 @@ package Servlet;
 import DAO.HomeCustomerDAO;
 import Model.CustomerHomeData;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import Servlet.SessionUtil;
 
 @WebServlet("/api/home-cust")
 public class HomeCustomerServlet extends HttpServlet {
@@ -31,19 +33,35 @@ public class HomeCustomerServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
+        setJsonResponse(response);
 
         PrintWriter out = response.getWriter();
-        HttpSession session = request.getSession(false);
+        int userId = getLoginUserId(request);
 
-        if (SessionUtil.isSessionExpired(session, response, "userId", "index.html")) {
+        if (userId <= 0) {
+            out.print(gson.toJson(errorResponse("Session not found. Customer login session is missing. Please login again.")));
+            out.flush();
             return;
         }
 
         try {
-            int userId = Integer.parseInt(session.getAttribute("userId").toString());
-            String customerName = session.getAttribute("userName") != null ? session.getAttribute("userName").toString() : "User";
+            String action = request.getParameter("action");
+
+            if ("notifications".equalsIgnoreCase(action)) {
+                JsonObject notificationResult = new JsonObject();
+                notificationResult.addProperty("status", "success");
+                notificationResult.add("notifications", gson.toJsonTree(homeCustomerDAO.getCustomerNotifications(userId)));
+                notificationResult.addProperty("unreadNotificationsCount", homeCustomerDAO.getCustomerNotificationCount(userId));
+                out.print(gson.toJson(notificationResult));
+                out.flush();
+                return;
+            }
+
+            String customerName = getLoginUserName(request);
+
+            if (customerName.trim().isEmpty()) {
+                customerName = "User";
+            }
 
             String[] customerMetadata = homeCustomerDAO.getCustomerProfileAndState(userId);
             String customerImg = customerMetadata[0];
@@ -72,16 +90,95 @@ public class HomeCustomerServlet extends HttpServlet {
             homeData.setPlumbers(homeCustomerDAO.getVendorsByCategoryAndRange("Plumber", customerLatitude, customerLongitude, plumberRange, plumberSort));
             homeData.setLawns(homeCustomerDAO.getVendorsByCategoryAndRange("Lawn Mower", customerLatitude, customerLongitude, lawnRange, lawnSort));
 
-            out.print(gson.toJson(homeData));
+            JsonObject result = gson.toJsonTree(homeData).getAsJsonObject();
+            result.add("notifications", gson.toJsonTree(homeCustomerDAO.getCustomerNotifications(userId)));
+            result.addProperty("unreadNotificationsCount", homeCustomerDAO.getCustomerNotificationCount(userId));
+
+            out.print(gson.toJson(result));
 
         } catch (Exception e) {
-            Map<String, String> errorRes = new HashMap<>();
-            errorRes.put("status", "error");
-            errorRes.put("message", "Database Error: " + e.getMessage());
-            out.print(gson.toJson(errorRes));
+            out.print(gson.toJson(errorResponse("Database Error: " + e.getMessage())));
         }
 
         out.flush();
+    }
+
+    private int getLoginUserId(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+
+        if (session != null && session.getAttribute("userId") != null) {
+            try {
+                return Integer.parseInt(session.getAttribute("userId").toString());
+            } catch (Exception e) {
+                return 0;
+            }
+        }
+
+        String cookieUserId = getCookieValue(request, "tn_userId");
+
+        if (!cookieUserId.trim().isEmpty()) {
+            try {
+                return Integer.parseInt(cookieUserId.trim());
+            } catch (Exception e) {
+                return 0;
+            }
+        }
+
+        String requestUserId = request.getParameter("userId");
+
+        if (requestUserId == null || requestUserId.trim().isEmpty()) {
+            requestUserId = request.getParameter("customerId");
+        }
+
+        try {
+            return Integer.parseInt(requestUserId);
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    private String getLoginUserName(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+
+        if (session != null && session.getAttribute("userName") != null) {
+            return session.getAttribute("userName").toString();
+        }
+
+        return getCookieValue(request, "tn_userName");
+    }
+
+    private String getCookieValue(HttpServletRequest request, String cookieName) {
+        Cookie[] cookies = request.getCookies();
+
+        if (cookies == null) {
+            return "";
+        }
+
+        for (Cookie cookie : cookies) {
+            if (cookieName.equals(cookie.getName())) {
+                try {
+                    return URLDecoder.decode(cookie.getValue(), "UTF-8");
+                } catch (Exception e) {
+                    return cookie.getValue();
+                }
+            }
+        }
+
+        return "";
+    }
+
+    private Map<String, String> errorResponse(String message) {
+        Map<String, String> response = new HashMap<>();
+        response.put("status", "error");
+        response.put("message", message);
+        return response;
+    }
+
+    private void setJsonResponse(HttpServletResponse response) {
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+        response.setHeader("Pragma", "no-cache");
     }
 
     private int sanitizeRange(String value) {

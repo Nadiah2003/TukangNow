@@ -6,7 +6,10 @@ import Model.EstimateItem;
 import com.google.gson.Gson;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -33,11 +36,17 @@ public class BookingServlet extends HttpServlet {
     private BookingDAO bookingDAO;
     private final Gson gson = new Gson();
 
-    private static final String EVIDENCE_UPLOAD_PATH = "C:" + File.separator + "xampp" + File.separator + "htdocs" + File.separator + "TukangNow" + File.separator + "src" + File.separator + "main" + File.separator + "webapp" + File.separator + "evidence";
+    private static final String EVIDENCE_UPLOAD_PATH = File.separator + "home" + File.separator + "s72009" + File.separator + "evidence";
 
     @Override
     public void init() {
         bookingDAO = new BookingDAO();
+
+        File evidenceDir = new File(EVIDENCE_UPLOAD_PATH);
+
+        if (!evidenceDir.exists()) {
+            evidenceDir.mkdirs();
+        }
     }
 
     @Override
@@ -97,10 +106,16 @@ public class BookingServlet extends HttpServlet {
             return;
         }
 
+        if ("resolveService".equalsIgnoreCase(action)) {
+            handleResolveService(request, response);
+            return;
+        }
+
         try {
             int customerId = Integer.parseInt(session.getAttribute("userId").toString());
 
             String vendorIdParam = request.getParameter("vendorId");
+            String serviceIdParam = request.getParameter("serviceId");
             String subserviceBooked = request.getParameter("service");
             String date = request.getParameter("date");
             String time = request.getParameter("time");
@@ -120,6 +135,7 @@ public class BookingServlet extends HttpServlet {
             }
 
             int vendorId = Integer.parseInt(vendorIdParam.trim());
+            int selectedServiceId = parseInt(serviceIdParam);
             double deposit = parseDouble(depositParam);
             double travelFee = parseDouble(travelFeeParam);
             double distanceKm = parseDouble(distanceKmParam);
@@ -144,6 +160,7 @@ public class BookingServlet extends HttpServlet {
             int bookingId = bookingDAO.createBooking(
                     customerId,
                     vendorId,
+                    selectedServiceId,
                     subserviceBooked,
                     date,
                     time,
@@ -160,6 +177,32 @@ public class BookingServlet extends HttpServlet {
             result.put("status", "success");
             result.put("bookingId", bookingId);
             result.put("amount", deposit);
+
+            sendJson(response, gson.toJson(result));
+
+        } catch (Exception e) {
+            sendJson(response, errorResponse(e.getMessage()));
+        }
+    }
+
+    private void handleResolveService(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String vendorIdParam = request.getParameter("vendorId");
+        String serviceIdParam = request.getParameter("serviceId");
+        String serviceName = request.getParameter("service");
+
+        if (vendorIdParam == null || vendorIdParam.trim().isEmpty()) {
+            sendJson(response, errorResponse("Missing vendor ID."));
+            return;
+        }
+
+        try {
+            int vendorId = Integer.parseInt(vendorIdParam.trim());
+            int selectedServiceId = parseInt(serviceIdParam);
+            int resolvedServiceId = bookingDAO.resolveServiceId(vendorId, selectedServiceId, serviceName);
+
+            Map<String, Object> result = new LinkedHashMap<>();
+            result.put("status", "success");
+            result.put("serviceId", resolvedServiceId);
 
             sendJson(response, gson.toJson(result));
 
@@ -214,6 +257,17 @@ public class BookingServlet extends HttpServlet {
         List<String> uploadedFiles = new ArrayList<>();
         int index = 0;
 
+        String runtimeEvidencePath = getServletContext().getRealPath("/evidence");
+        File runtimeUploadDir = null;
+
+        if (runtimeEvidencePath != null && !runtimeEvidencePath.trim().isEmpty()) {
+            runtimeUploadDir = new File(runtimeEvidencePath);
+
+            if (!runtimeUploadDir.exists()) {
+                runtimeUploadDir.mkdirs();
+            }
+        }
+
         for (Part part : parts) {
             if ("images".equals(part.getName())
                     && part.getSize() > 0
@@ -226,7 +280,19 @@ public class BookingServlet extends HttpServlet {
                 if (isAllowedImageExtension(ext)) {
                     String fileName = System.currentTimeMillis() + "_" + UUID.randomUUID().toString() + "_" + index + ext;
                     File targetFile = new File(evidenceDir, fileName);
-                    part.write(targetFile.getAbsolutePath());
+
+                    try (InputStream inputStream = part.getInputStream()) {
+                        Files.copy(inputStream, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    }
+
+                    if (runtimeUploadDir != null) {
+                        File runtimeTargetFile = new File(runtimeUploadDir, fileName);
+
+                        if (!runtimeTargetFile.getCanonicalPath().equals(targetFile.getCanonicalPath())) {
+                            Files.copy(targetFile.toPath(), runtimeTargetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                        }
+                    }
+
                     uploadedFiles.add(fileName);
                     index++;
                 }
@@ -254,6 +320,18 @@ public class BookingServlet extends HttpServlet {
         }
 
         return fileName.substring(fileName.lastIndexOf("."));
+    }
+
+    private int parseInt(String value) {
+        try {
+            if (value != null && !value.trim().isEmpty()) {
+                return Integer.parseInt(value.trim());
+            }
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+
+        return 0;
     }
 
     private double parseDouble(String value) {

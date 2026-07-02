@@ -34,11 +34,17 @@ public class EmergencyServlet extends HttpServlet {
     private EmergencyDAO emergencyDAO;
     private final Gson gson = new Gson();
 
-    private static final String EVIDENCE_UPLOAD_PATH = "C:" + File.separator + "xampp" + File.separator + "htdocs" + File.separator + "TukangNow" + File.separator + "src" + File.separator + "main" + File.separator + "webapp" + File.separator + "evidence";
+    private static final String EVIDENCE_UPLOAD_PATH = File.separator + "home" + File.separator + "s72009" + File.separator + "evidence";
 
     @Override
     public void init() throws ServletException {
         emergencyDAO = new EmergencyDAO();
+
+        File evidenceDir = new File(EVIDENCE_UPLOAD_PATH);
+
+        if (!evidenceDir.exists()) {
+            evidenceDir.mkdirs();
+        }
     }
 
     @Override
